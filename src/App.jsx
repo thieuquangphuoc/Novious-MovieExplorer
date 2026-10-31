@@ -1,19 +1,20 @@
 import { useEffect } from 'react';
+import { getTrending } from './services/api';
 
-const KEY = '9a6d1d236017ab7b46940fcfab32fa0a'
 const App = () => {
   useEffect(() => {
-    fetch(`https://api.themoviedb.org/3/trending/movie/week?api_key=${KEY}`)
-    .then(res => res.json())
-    .then(data => {
-      console.log(data)
-    })
-  }, [])
+    const loadMovies = async () => {
+      const movies = await getTrending();
+      console.log(movies);
+    }
+    loadMovies();
+  }, []);
+
   return (
     <div>
-      <h1>Test Movie Database</h1>
+      <h1>Test Database</h1>
     </div>
   );
-}
+};
 
 export default App;
