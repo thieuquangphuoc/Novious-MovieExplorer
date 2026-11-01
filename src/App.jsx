@@ -9,6 +9,14 @@ import Discover from './pages/Discover';
 import Quiz from './pages/Quiz';
 import Insights from './pages/Insights';
 
+const eachElement = [
+  { path: "/", element: <Home/>},
+  { path: "/discover", element: <Discover/>},
+  { path: "/quiz", element: <Quiz/>},
+  { path: "/insights", element: <Insights/>},
+];
+
+
 const App = () => {
   useEffect(() => {
     const loadMovies = async () => {
@@ -21,14 +29,11 @@ const App = () => {
   return (
     <div>
       <NavBar/>
-      <Routes>
-
-        <Route path="/" element={<Home/>}/>
-        <Route path="/discover" element={<Discover/>}/>
-        <Route path="/quiz" element={<Quiz/>}/>
-        <Route path="/insights" element={<Insights/>}/>
-
-      </Routes>
+      <Routes>{eachElement.map((item) => {
+        return (
+          <Route key={item.path} path={item.path} element={item.element}/>
+        );
+      })}</Routes>
     </div>
   );
 };
