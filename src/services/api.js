@@ -15,4 +15,17 @@ export const getTrending = async () => {
         return [];
     }
 
-}
+};
+
+export const searchMovies = async (query) => {
+    try {
+        const res = await fetch(`${BASE}/search/movie?query=${encodeURIComponent(query)}&api_key=${KEY}`);
+        if (!res.ok) throw new Error(res.status);
+        const data = await res.json();
+        return data.results;
+
+    } catch (error) {
+        console.log(error);
+        return []
+    }
+};
