@@ -5,6 +5,7 @@ import {
 } from "recharts";
 import { getTrending, getGenres } from "../services/api";
 import InsightSection from "../components/InsightSection";
+import CountUp from "react-countup";
 
 const COLORS = ["#E50914", "#b81d24", "#f5c518", "#4a9eff", "#46d369", "#9b59b6"];
 
@@ -12,17 +13,20 @@ function Insights() {
   const [movies, setMovies] = useState([]);
   const [genres, setGenres] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [timeWindow, setTimeWindow] = useState("week");   
+
 
   useEffect(() => {
     const load = async () => {
+      setLoading(true);                                   
       // 2 request độc lập → chạy song song
-      const [movieList, genreList] = await Promise.all([getTrending(), getGenres()]);
+      const [movieList, genreList] = await Promise.all([getTrending(timeWindow), getGenres()]);
       setMovies(movieList);
       setGenres(genreList);
       setLoading(false);
     };
     load();
-  }, []);
+  }, [timeWindow]);
 
   if (loading) {
     return <div className="flex min-h-screen items-center justify-center bg-[#141414] text-neutral-400">Analysing data...</div>;
@@ -104,18 +108,43 @@ function Insights() {
           Live analysis of this week's trending films on TMDB.
         </p>
 
+        <div className="mb-12 inline-flex rounded-full border border-neutral-700 p-1">
+        {["day", "week"].map((w) => (
+            <button
+            key={w}
+            onClick={() => setTimeWindow(w)}
+            className={`rounded-full px-6 py-2 text-sm font-medium transition-colors ${
+                timeWindow === w ? "bg-[#E50914] text-white" : "text-neutral-400 hover:text-white"
+            }`}
+            >
+            {w === "day" ? "Today" : "This week"}
+            </button>
+        ))}
+        </div>
+
         <div className="mx-auto grid max-w-4xl grid-cols-2 gap-6 md:grid-cols-4">
-          {[
-            { label: "Films analysed", value: movies.length },
-            { label: "Average rating", value: `★ ${avgRating}` },
-            { label: "Top genre", value: topGenre.name },
-            { label: "Rated 7+", value: `${goodPct}%` },
-          ].map((s) => (
-            <div key={s.label}>
-              <p className="text-3xl font-bold text-white">{s.value}</p>
-              <p className="mt-1 text-xs uppercase tracking-wide text-neutral-500">{s.label}</p>
-            </div>
-          ))}
+        <div>
+            <p className="text-3xl font-bold text-white">
+            <CountUp end={movies.length} duration={1.5} />
+            </p>
+            <p className="mt-1 text-xs uppercase tracking-wide text-neutral-500">Films analysed</p>
+        </div>
+        <div>
+            <p className="text-3xl font-bold text-white">
+            ★ <CountUp end={Number(avgRating)} decimals={1} duration={1.8} />
+            </p>
+            <p className="mt-1 text-xs uppercase tracking-wide text-neutral-500">Average rating</p>
+        </div>
+        <div>
+            <p className="text-3xl font-bold text-white">{topGenre.name}</p>
+            <p className="mt-1 text-xs uppercase tracking-wide text-neutral-500">Top genre</p>
+        </div>
+        <div>
+            <p className="text-3xl font-bold text-white">
+            <CountUp end={goodPct} duration={2} suffix="%" />
+            </p>
+            <p className="mt-1 text-xs uppercase tracking-wide text-neutral-500">Rated 7+</p>
+        </div>
         </div>
       </section>
 
@@ -141,7 +170,7 @@ function Insights() {
       >
         <ResponsiveContainer width="100%" height={320}>
           <PieChart>
-            <Pie data={genreData} dataKey="value" nameKey="name" innerRadius={70} outerRadius={115} paddingAngle={2}>
+            <Pie data={genreData} dataKey="value" nameKey="name" innerRadius={70} outerRadius={115} paddingAngle={2} animationDuration={1000} animationBegin={200}>
               {genreData.map((entry, i) => (
                 <Cell key={entry.name} fill={COLORS[i % COLORS.length]} stroke="#141414" strokeWidth={3} />
               ))}
@@ -196,7 +225,7 @@ function Insights() {
               stroke="#8c8c8c" tick={{ fontSize: 11 }} />
             <ZAxis type="number" dataKey="votes" range={[60, 500]} />
             <Tooltip content={<ScatterTip />} cursor={{ strokeDasharray: "3 3" }} />
-            <Scatter data={scatterData} fill="#E50914" fillOpacity={0.65} />
+            <Scatter data={scatterData} fill="#E50914" fillOpacity={0.65} animationDuration={1500} />
           </ScatterChart>
         </ResponsiveContainer>
       </InsightSection>
@@ -228,7 +257,7 @@ function Insights() {
             <XAxis dataKey="range" stroke="#8c8c8c" tick={{ fontSize: 12 }} />
             <YAxis allowDecimals={false} stroke="#8c8c8c" tick={{ fontSize: 12 }} />
             <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "#ffffff0d" }} />
-            <Bar dataKey="count" fill="#E50914" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="count" fill="#E50914" radius={[4, 4, 0, 0]} animationDuration={1200} animationEasing="ease-out" />
           </BarChart>
         </ResponsiveContainer>
       </InsightSection>
