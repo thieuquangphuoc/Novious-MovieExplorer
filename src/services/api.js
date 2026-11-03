@@ -29,3 +29,15 @@ export const searchMovies = async (query) => {
         return []
     }
 };
+
+export const getGenres = async () => {
+  try {
+    const res = await fetch(`${BASE}/genre/movie/list?api_key=${KEY}`);
+    if (!res.ok) throw new Error(res.status);
+    const data = await res.json();
+    return data.genres;           // [{ id, name }]
+  } catch (error) {
+    console.log("getGenres error:", error);
+    return [];
+  }
+};
