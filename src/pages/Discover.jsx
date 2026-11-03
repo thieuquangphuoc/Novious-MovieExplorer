@@ -18,7 +18,7 @@ function Discover() {
       const results = await getTrending();
       setMovies(results);
       if (results.length > 0 && results[0].backdrop_path) {
-        setHeroBackdrop(`${IMG_ORIGINAL}${results[4].backdrop_path}`);
+        setHeroBackdrop(`${IMG_ORIGINAL}${results[7].backdrop_path}`);
       }
       setLoading(false);
     };
