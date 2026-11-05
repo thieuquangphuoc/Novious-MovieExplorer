@@ -12,6 +12,8 @@ dist
 dist-ssr
 .env.local
 docs/PROJECT.md
+.claude
+CLAUDE.MD
 
 # Editor directories and files
 .vscode/*

@@ -5,7 +5,7 @@ import {
 } from "recharts";
 import { getTrending, getGenres } from "../services/api";
 import InsightSection from "../components/InsightSection";
-import CountUp from "react-countup";
+import CountUp from "../lib/countUp";
 
 const COLORS = ["#E50914", "#b81d24", "#f5c518", "#4a9eff", "#46d369", "#9b59b6"];
 
