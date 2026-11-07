@@ -16,21 +16,22 @@ const formatRuntime = (minutes) => {
   return `${Math.floor(minutes / 60)}h ${minutes % 60}m`;
 };
 
-// 125000000 -> "$125,000,000"; TMDB thường trả 0 khi không có dữ liệu
+// 125000000 -> "$125,000,000"; TMDB returns 0 when it has no figure
 const formatMoney = (amount) => {
   if (!amount) return "Not available";
   return `$${amount.toLocaleString("en-US")}`;
 };
 
 /*
- * Trang chi tiết của một bộ phim: /movie/:id
+ * The detail page for a single film: /movie/:id
  *
- * useParams đọc id từ URL. Hai lời gọi API chạy song song bằng Promise.all
- * vì chúng độc lập nhau — chờ lần lượt sẽ chậm gấp đôi không vì lý do gì.
+ * useParams reads the id out of the URL. The two API calls run in parallel
+ * through Promise.all because neither depends on the other — awaiting them
+ * in turn would take twice as long for nothing.
  *
- * Dependency array là [id]: khi người xem bấm sang phim khác, id đổi thì
- * effect chạy lại và nạp dữ liệu phim mới. Nếu để [] thì trang sẽ đứng yên
- * với dữ liệu của phim đầu tiên.
+ * The dependency array is [id]: when the visitor follows a link to another
+ * film the id changes, the effect runs again and fresh data is loaded. With
+ * [] the page would sit frozen on the first film it ever showed.
  */
 const MovieDetail = () => {
   const { id } = useParams();
@@ -74,7 +75,7 @@ const MovieDetail = () => {
 
   return (
     <div>
-      {/* ===== PHẦN ĐẦU: ảnh nền + poster + thông tin chính ===== */}
+      {/* ===== TOP: backdrop + poster + the main facts ===== */}
       <section className="relative">
         {movie.backdrop_path && (
           <img
@@ -85,7 +86,7 @@ const MovieDetail = () => {
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/90 to-[#141414]/70" />
 
-        <div className="relative mx-auto flex max-w-7xl flex-col gap-8 px-4 py-12 sm:px-6 md:flex-row lg:px-8">
+        <div className="relative mx-auto flex max-w-7xl flex-col gap-8 px-4 pb-12 pt-28 sm:px-6 md:flex-row lg:px-8">
           <img
             src={movie.poster_path ? `${POSTER_BASE}${movie.poster_path}` : NO_POSTER}
             alt={`Poster ${movie.title}`}
@@ -108,7 +109,7 @@ const MovieDetail = () => {
               <span>{formatRuntime(movie.runtime)}</span>
             </div>
 
-            {/* tên thể loại chỉ có trong response chi tiết, không có ở /trending */}
+            {/* genre names only exist in the detail response, not in /trending */}
             <div className="mt-4 flex flex-wrap gap-2">
               {movie.genres?.map((genre) => (
                 <span
@@ -158,7 +159,7 @@ const MovieDetail = () => {
         </div>
       </section>
 
-      {/* ===== DÀN DIỄN VIÊN ===== */}
+      {/* ===== CAST ===== */}
       <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
         <h2 className="mb-6 text-xl font-bold text-white">Cast</h2>
 

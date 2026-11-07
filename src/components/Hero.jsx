@@ -1,29 +1,29 @@
 import { Link } from "react-router-dom";
+import StarRating from "./StarRating";
 
 const BACKDROP_BASE = "https://image.tmdb.org/t/p/original";
 const POSTER_BASE = "https://image.tmdb.org/t/p/w500";
 
 /*
- * One slide of the hero slideshow on the home page.
+ * One card of the hero carousel on the home page.
  *
- * Layout: a three-column grid — the portrait poster takes the left column,
+ * The card fills whatever box Home gives it (h-full w-full) and rounds its
+ * own corners, because Home keeps the neighbouring cards peeking in at the
+ * edges and each of them has to read as a separate panel.
+ *
+ * Inside, a three-column grid: the portrait poster takes the left column,
  * the text takes the two right ones. The poster derives its height from the
- * hero (h-full minus padding) and its width follows from the 2:3 ratio, so
- * it stays in proportion whatever the screen size.
+ * card and its width follows from the 2:3 ratio, so it stays in proportion
+ * whatever the screen size.
  *
- * Below lg the poster is hidden: on a phone it would swallow the whole
+ * Below lg the poster is hidden — on a phone it would swallow the whole
  * space meant for the title and the overview.
- *
- * shrink-0 is required. Home lays the Hero slides side by side in a flex
- * track and slides it with translateX; letting flex shrink them would
- * collapse every slide into a single frame.
  */
 const Hero = ({ movie }) => {
   const year = movie.release_date ? movie.release_date.slice(0, 4) : "—";
-  const rating = movie.vote_average ? movie.vote_average.toFixed(1) : "N/A";
 
   return (
-    <section className="relative h-[60vh] max-h-[600px] min-h-[420px] w-full shrink-0 overflow-hidden">
+    <div className="relative h-full w-full overflow-hidden rounded-xl">
       <img
         src={`${BACKDROP_BASE}${movie.backdrop_path}`}
         alt={movie.title}
@@ -31,13 +31,13 @@ const Hero = ({ movie }) => {
       />
 
       {/* darken the left so the poster and the text stand out */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#141414] via-[#141414]/85 to-transparent" />
-      {/* darken the bottom so the slide meets the page background */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#141414] via-[#141414]/80 to-transparent" />
+      {/* darken the bottom so the card does not fight the page background */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#141414]/90 via-transparent to-transparent" />
 
-      <div className="relative mx-auto grid h-full max-w-7xl grid-cols-1 items-center gap-10 px-4 sm:px-6 lg:grid-cols-3 lg:px-20">
+      <div className="relative grid h-full grid-cols-1 items-center gap-8 px-6 sm:px-10 lg:grid-cols-3 lg:px-14">
         {/* left column: portrait poster */}
-        <div className="hidden self-stretch py-6 lg:flex lg:items-center lg:justify-center">
+        <div className="hidden self-stretch py-10 lg:flex lg:items-center lg:justify-center">
           <img
             src={`${POSTER_BASE}${movie.poster_path}`}
             alt={`Poster ${movie.title}`}
@@ -47,17 +47,19 @@ const Hero = ({ movie }) => {
 
         {/* two right columns: title and overview */}
         <div className="lg:col-span-2">
-          <div className="mb-3 flex items-center gap-3 text-sm text-neutral-300">
-            <span className="font-semibold text-[#E50914]">★ {rating}</span>
-            <span>{year}</span>
-            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-400">
-              Trending now
-            </span>
-          </div>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.25em] text-[#E50914]">
+            Trending now
+          </p>
 
           <h1 className="text-3xl font-bold leading-tight text-white sm:text-4xl lg:text-5xl">
             {movie.title}
           </h1>
+
+          <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-neutral-300">
+            <StarRating value={movie.vote_average} />
+            <span>{movie.vote_average ? movie.vote_average.toFixed(1) : "N/A"}</span>
+            <span>{year}</span>
+          </div>
 
           <p className="mt-4 line-clamp-3 max-w-2xl text-sm leading-relaxed text-neutral-300 sm:text-base">
             {movie.overview || "No description available."}
@@ -81,7 +83,7 @@ const Hero = ({ movie }) => {
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 

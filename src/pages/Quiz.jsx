@@ -68,7 +68,7 @@ const Quiz = () => {
     const percent = Math.round((score / questions.length) * 100);
 
     return (
-      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 pb-16 pt-28 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-xl rounded-lg border border-neutral-800 bg-[#1c1c1c] p-10 text-center">
           <p className="text-sm uppercase tracking-widest text-neutral-500">Kết quả</p>
 
@@ -96,7 +96,7 @@ const Quiz = () => {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl px-4 pb-12 pt-28 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-2xl">
         {/* thanh tien do */}
         <div className="mb-2 flex items-baseline justify-between text-sm text-neutral-500">

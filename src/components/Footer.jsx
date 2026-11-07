@@ -12,17 +12,18 @@ const footerLinks = [
 ];
 
 /*
- * Chân trang dùng chung cho mọi trang.
+ * The footer, shared by every page.
  *
- * Nền là một tấm thảm poster phim thật lấy từ TMDB, làm mờ mạnh rồi phủ
- * một lớp tối lên trên, nên nó chỉ còn là kết cấu màu sắc chứ không giành
- * sự chú ý với phần chữ.
+ * Its background is a carpet of real posters pulled from TMDB, blurred hard
+ * and covered with a dark wash, so it reads as colour and texture rather
+ * than competing with the text in front of it.
  *
- * Poster được lặp lại cho tới khi đủ lấp lưới, vì /trending chỉ trả về 20
- * phim mà lưới cần nhiều ô hơn ở màn hình rộng.
+ * The posters are repeated because /trending only returns twenty films and
+ * the grid needs more tiles than that on a wide screen.
  *
- * aria-hidden cho cả khối nền: đó là trang trí thuần tuý, trình đọc màn
- * hình không cần nghe tên 40 bộ phim trước khi tới nội dung chân trang.
+ * The whole background block is aria-hidden: it is pure decoration, and a
+ * screen reader should not have to announce forty film titles before it
+ * reaches the footer content.
  */
 const Footer = () => {
   const [posters, setPosters] = useState([]);
@@ -38,7 +39,7 @@ const Footer = () => {
 
   return (
     <footer className="relative mt-20 overflow-hidden border-t border-white/10">
-      {/* ===== NỀN TRANG TRÍ ===== */}
+      {/* ===== DECORATIVE BACKGROUND ===== */}
       <div aria-hidden="true" className="absolute inset-0">
         <div className="grid h-full w-full grid-cols-6 sm:grid-cols-10 lg:grid-cols-12">
           {posters.map((path, index) => (
@@ -51,12 +52,12 @@ const Footer = () => {
           ))}
         </div>
 
-        {/* làm mờ và tối để chữ phía trên luôn đọc được */}
+        {/* blur and darken so the text in front stays readable */}
         <div className="absolute inset-0 bg-[#141414]/70 backdrop-blur-[6px]" />
         <div className="absolute inset-0 bg-gradient-to-b from-[#141414] via-[#141414]/40 to-[#141414]" />
       </div>
 
-      {/* ===== NỘI DUNG ===== */}
+      {/* ===== CONTENT ===== */}
       <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-10 md:flex-row md:justify-between">
           <div className="max-w-sm">

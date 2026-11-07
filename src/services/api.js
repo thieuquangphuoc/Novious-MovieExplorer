@@ -29,9 +29,9 @@ export const searchMovies = async (query) => {
 };
 
 /*
- * Thông tin đầy đủ của một phim: runtime, ngân sách, doanh thu, tagline,
- * tên thể loại... Những trường này KHÔNG có trong /trending hay /search,
- * bắt buộc phải gọi riêng theo id.
+ * Everything TMDB holds about one film: runtime, budget, revenue, tagline,
+ * genre names and so on. None of these fields appear in /trending or
+ * /search, so this endpoint has to be called separately by id.
  */
 export const getMovieDetails = async (id) => {
   try {
@@ -45,7 +45,7 @@ export const getMovieDetails = async (id) => {
   }
 };
 
-// Dàn diễn viên của một phim: name, character, profile_path.
+// The cast of one film: name, character, profile_path.
 export const getMovieCredits = async (id) => {
   try {
     const res = await fetch(`${BASE}/movie/${id}/credits?api_key=${KEY}`);
@@ -59,21 +59,21 @@ export const getMovieCredits = async (id) => {
 };
 
 /*
- * Danh sách phim cho hero slideshow ở trang chủ.
+ * The films shown in the hero carousel on the home page.
  *
- * Phim do người dùng tự chọn trong src/data/heroMovies.js — file đó chỉ
- * chứa id, xem hướng dẫn lấy id ngay trong file.
+ * Which films they are is chosen by hand in src/data/heroMovies.js; that
+ * file holds nothing but TMDB ids.
  *
- * Promise.all gọi song song tất cả, nhanh hơn nhiều so với chờ từng phim
- * một. Phim nào lỗi thì getMovieDetails trả về null, lọc bỏ ở bước cuối
- * để một id gõ sai không làm trống cả hero.
+ * Promise.all fetches them all at once rather than one after another. A bad
+ * id makes getMovieDetails return null, and the filter at the end drops it,
+ * so a single typo cannot empty the whole carousel.
  */
 export const getHeroMovies = async () => {
   const movies = await Promise.all(heroMovieIds.map((id) => getMovieDetails(id)));
   return movies.filter((movie) => movie !== null && movie.backdrop_path && movie.poster_path);
 };
 
-// Phim điểm cao nhất mọi thời đại, dùng cho row thứ hai ở trang chủ.
+// The highest rated films of all time, used by the second row on the home page.
 export const getTopRated = async () => {
   try {
     const res = await fetch(`${BASE}/movie/top_rated?api_key=${KEY}`);

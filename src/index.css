@@ -1,43 +1,23 @@
 @import "tailwindcss";
 
-/* Tailwind v4 đọc @theme để sinh ra class tiện ích.
-   Khai báo này tạo ra class font-display dùng cho logo NOVIOUS. */
+/* Tailwind v4 reads @theme to generate utility classes.
+   This declaration creates the font-display class used by the NOVIOUS logo. */
 @theme {
   --font-display: "Bebas Neue", sans-serif;
 }
 
 /*
- * Băng chuyền phim chạy vô hạn ở trang chủ.
+ * Hides the horizontal scrollbar on the home page rows.
  *
- * Mẹo ở đây: MovieRow in danh sách phim HAI lần liên tiếp, rồi dải này
- * trượt sang trái đúng 50% chiều rộng của chính nó — tức là vừa hết bản
- * sao thứ nhất. Lúc đó animation quay về 0, và vì bản sao thứ hai giống
- * hệt bản thứ nhất nên mắt không thấy điểm nối, cảm giác như chạy mãi.
- *
- * Thời lượng để ở --marquee-duration để mỗi row chỉnh tốc độ riêng được.
+ * The rows are still real scroll containers — a trackpad swipe or a touch
+ * drag works as usual — but the bar itself would sit under every row and
+ * break the look, and the arrow buttons already show that the row moves.
  */
-@keyframes marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-.marquee-track {
-  animation: marquee var(--marquee-duration, 40s) linear infinite;
-  width: max-content;
-}
-
-/* rê chuột vào bất kỳ đâu trong row thì cả băng chuyền đứng lại */
-.marquee-row:hover .marquee-track {
-  animation-play-state: paused;
-}
-
-/* người dùng bật "giảm chuyển động" trong hệ điều hành thì không chạy nữa */
-@media (prefers-reduced-motion: reduce) {
-  .marquee-track {
-    animation: none;
-  }
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
