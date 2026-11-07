@@ -11,7 +11,7 @@ function Discover() {
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
 
-  // chạy 1 lần khi mở trang: lấy trending cho lưới mặc định + ảnh nền hero
+  // runs once on mount: trending for the default grid + the hero backdrop
   useEffect(() => {
     const loadTrending = async () => {
       setLoading(true);
@@ -38,12 +38,12 @@ function Discover() {
   return (
     <div className="min-h-screen bg-[#141414]">
 
-      {/* ===== HERO: ảnh phim làm nền + thanh search ở giữa ===== */}
+      {/* ===== HERO: film still as background + search bar in the middle ===== */}
       <section
         className="relative flex h-[55vh] min-h-[360px] items-center justify-center bg-cover bg-center"
         style={{ backgroundImage: heroBackdrop ? `url(${heroBackdrop})` : "none" }}
       >
-        {/* lớp phủ tối, tan dần xuống màu nền trang */}
+        {/* dark overlay fading down into the page background */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/70 to-[#141414]" />
 
         <div className="relative z-10 mx-auto w-full max-w-2xl px-4 text-center">

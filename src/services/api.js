@@ -73,6 +73,19 @@ export const getHeroMovies = async () => {
   return movies.filter((movie) => movie !== null && movie.backdrop_path && movie.poster_path);
 };
 
+// Phim điểm cao nhất mọi thời đại, dùng cho row thứ hai ở trang chủ.
+export const getTopRated = async () => {
+  try {
+    const res = await fetch(`${BASE}/movie/top_rated?api_key=${KEY}`);
+    if (!res.ok) throw new Error(res.status);
+    const data = await res.json();
+    return data.results;
+  } catch (error) {
+    console.log("getTopRated error:", error);
+    return [];
+  }
+};
+
 export const getGenres = async () => {
   try {
     const res = await fetch(`${BASE}/genre/movie/list?api_key=${KEY}`);

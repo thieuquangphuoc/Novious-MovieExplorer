@@ -5,3 +5,39 @@
 @theme {
   --font-display: "Bebas Neue", sans-serif;
 }
+
+/*
+ * Băng chuyền phim chạy vô hạn ở trang chủ.
+ *
+ * Mẹo ở đây: MovieRow in danh sách phim HAI lần liên tiếp, rồi dải này
+ * trượt sang trái đúng 50% chiều rộng của chính nó — tức là vừa hết bản
+ * sao thứ nhất. Lúc đó animation quay về 0, và vì bản sao thứ hai giống
+ * hệt bản thứ nhất nên mắt không thấy điểm nối, cảm giác như chạy mãi.
+ *
+ * Thời lượng để ở --marquee-duration để mỗi row chỉnh tốc độ riêng được.
+ */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-track {
+  animation: marquee var(--marquee-duration, 40s) linear infinite;
+  width: max-content;
+}
+
+/* rê chuột vào bất kỳ đâu trong row thì cả băng chuyền đứng lại */
+.marquee-row:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+/* người dùng bật "giảm chuyển động" trong hệ điều hành thì không chạy nữa */
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}

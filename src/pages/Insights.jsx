@@ -19,7 +19,7 @@ function Insights() {
   useEffect(() => {
     const load = async () => {
       setLoading(true);                                   
-      // 2 request độc lập → chạy song song
+      // two independent requests -> run them in parallel
       const [movieList, genreList] = await Promise.all([getTrending(timeWindow), getGenres()]);
       setMovies(movieList);
       setGenres(genreList);
@@ -37,7 +37,7 @@ function Insights() {
 
   /* ---------- TÍNH TOÁN ---------- */
 
-  // A. đếm thể loại
+  // A. count the genres
   const counts = {};
   movies.forEach((m) => {
     m.genre_ids?.forEach((id) => {
@@ -65,7 +65,7 @@ function Insights() {
   const hyped = [...movies].sort((a, b) => b.popularity - a.popularity)[0];
   const hiddenGems = movies.filter((m) => m.vote_average >= 7.5 && m.popularity < avgPop);
 
-  // C. phân bố rating
+  // C. rating distribution
   const buckets = [
     { range: "< 6",   count: movies.filter((m) => m.vote_average < 6).length },
     { range: "6 – 7", count: movies.filter((m) => m.vote_average >= 6 && m.vote_average < 7).length },
@@ -148,7 +148,7 @@ function Insights() {
         </div>
       </section>
 
-      {/* ===== 1: chart TRÁI / chữ PHẢI, nền thường ===== */}
+      {/* ===== 1: chart LEFT / text RIGHT, standard background ===== */}
       <InsightSection
         kicker="Genre breakdown"
         title={`${topGenre.name} dominates this week`}
@@ -188,7 +188,7 @@ function Insights() {
         </div>
       </InsightSection>
 
-      {/* ===== 2: chart PHẢI / chữ TRÁI, nền tối hơn ===== */}
+      {/* ===== 2: chart RIGHT / text LEFT, darker background ===== */}
       <InsightSection
         reverse
         dark
@@ -230,7 +230,7 @@ function Insights() {
         </ResponsiveContainer>
       </InsightSection>
 
-      {/* ===== 3: chart TRÁI / chữ PHẢI, nền thường ===== */}
+      {/* ===== 3: chart LEFT / text RIGHT, standard background ===== */}
       <InsightSection
         kicker="Rating distribution"
         title={`${goodPct}% of trending films score 7 or above`}

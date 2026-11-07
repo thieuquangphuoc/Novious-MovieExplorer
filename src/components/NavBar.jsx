@@ -8,17 +8,19 @@ const navbarContent = [
 ];
 
 /*
- * Thanh điều hướng.
+ * Navigation bar.
  *
- * Nền cùng màu #141414 với trang và hero nên nhìn liền một khối; chỉ có
- * một đường viền mờ phía dưới để tách khỏi nội dung. sticky top-0 giữ nó
- * luôn ở trên khi cuộn, backdrop-blur làm ảnh phía sau mờ đi khi trôi qua.
+ * The background is the same #141414 as the page and the hero, so the top
+ * of the site reads as one surface; only a faint bottom border separates it
+ * from the content. sticky top-0 keeps it in view while scrolling, and
+ * backdrop-blur softens whatever passes underneath.
  *
- * NavLink cho sẵn isActive, dùng để tô đỏ đúng mục của trang đang mở —
- * người xem luôn biết mình đang ở đâu.
+ * NavLink hands us isActive, which marks the current page in red so the
+ * visitor always knows where they are.
  *
- * Ở màn hình hẹp hai hàng xếp dọc; từ sm trở lên mới nằm ngang. Trước đây
- * ép nằm ngang ở mọi khổ nên trên điện thoại logo dính liền vào menu.
+ * On narrow screens the two rows stack; from sm upwards they sit side by
+ * side. Forcing a single row at every width used to glue the logo to the
+ * menu on a phone.
  */
 export const NavBar = () => {
     return (

@@ -12,7 +12,7 @@ const MovieCard = ({ movie }) => {
 
   return (
     <Link to={`/movie/${movie.id}`} className="group block cursor-pointer">
-      {/* khung poster */}
+      {/* poster frame */}
       <div className="relative overflow-hidden rounded-md transition-transform duration-300 ease-out group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-black/60">
         <img
           src={poster}
@@ -20,7 +20,7 @@ const MovieCard = ({ movie }) => {
           className="aspect-[2/3] w-full object-cover"
         />
 
-        {/* lớp phủ hiện khi hover */}
+        {/* overlay revealed on hover */}
         <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black via-black/70 to-transparent p-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
           <p className="mb-1 text-xs font-semibold text-[#E50914]">★ {rating}</p>
           <p className="line-clamp-3 text-[11px] leading-snug text-neutral-300">
@@ -29,7 +29,7 @@ const MovieCard = ({ movie }) => {
         </div>
       </div>
 
-      {/* tên phim dưới poster */}
+      {/* title under the poster */}
       <h3 className="mt-2 truncate text-sm font-medium text-white group-hover:text-[#E50914]">
         {movie.title}
       </h3>

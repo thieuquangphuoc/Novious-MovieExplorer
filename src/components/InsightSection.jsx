@@ -4,10 +4,10 @@ const InsightSection = ({ kicker, title, text, reverse = false, dark = false, ch
       <div className={`mx-auto flex max-w-7xl flex-col items-center gap-10 px-4 py-20 sm:px-6 lg:gap-16 lg:px-8 
         ${ reverse ? "lg:flex-row-reverse" : "lg:flex-row"}`}>
             
-        {/* cột biểu đồ */}
+        {/* chart column */}
         <div className="w-full lg:w-1/2">{children}</div>
 
-        {/* cột chữ */}
+        {/* text column */}
         <div className="w-full lg:w-1/2">
           <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[#E50914]">
             {kicker}

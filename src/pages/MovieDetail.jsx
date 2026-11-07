@@ -18,7 +18,7 @@ const formatRuntime = (minutes) => {
 
 // 125000000 -> "$125,000,000"; TMDB thường trả 0 khi không có dữ liệu
 const formatMoney = (amount) => {
-  if (!amount) return "Không có dữ liệu";
+  if (!amount) return "Not available";
   return `$${amount.toLocaleString("en-US")}`;
 };
 
@@ -54,15 +54,15 @@ const MovieDetail = () => {
   }, [id]);
 
   if (loading) {
-    return <p className="py-32 text-center text-neutral-400">Đang tải...</p>;
+    return <p className="py-32 text-center text-neutral-400">Loading...</p>;
   }
 
   if (!movie) {
     return (
       <div className="py-32 text-center">
-        <p className="text-neutral-400">Không tìm thấy phim này.</p>
+        <p className="text-neutral-400">Movie not found.</p>
         <Link to="/discover" className="mt-4 inline-block text-[#E50914] hover:underline">
-          Quay lại Discover
+          Back to Discover
         </Link>
       </div>
     );
@@ -103,7 +103,7 @@ const MovieDetail = () => {
 
             <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-neutral-300">
               <span className="font-semibold text-[#E50914]">★ {rating}</span>
-              <span>{movie.vote_count?.toLocaleString("en-US")} lượt đánh giá</span>
+              <span>{movie.vote_count?.toLocaleString("en-US")} votes</span>
               <span>{year}</span>
               <span>{formatRuntime(movie.runtime)}</span>
             </div>
@@ -120,26 +120,26 @@ const MovieDetail = () => {
               ))}
             </div>
 
-            <h2 className="mt-8 text-lg font-semibold text-white">Nội dung</h2>
+            <h2 className="mt-8 text-lg font-semibold text-white">Overview</h2>
             <p className="mt-2 max-w-3xl leading-relaxed text-neutral-300">
-              {movie.overview || "Chưa có mô tả cho phim này."}
+              {movie.overview || "No description available."}
             </p>
 
             <dl className="mt-8 grid grid-cols-1 gap-x-8 gap-y-4 text-sm sm:grid-cols-2">
               <div>
-                <dt className="text-neutral-500">Ngân sách</dt>
+                <dt className="text-neutral-500">Budget</dt>
                 <dd className="text-white">{formatMoney(movie.budget)}</dd>
               </div>
               <div>
-                <dt className="text-neutral-500">Doanh thu</dt>
+                <dt className="text-neutral-500">Revenue</dt>
                 <dd className="text-white">{formatMoney(movie.revenue)}</dd>
               </div>
               <div>
-                <dt className="text-neutral-500">Trạng thái</dt>
+                <dt className="text-neutral-500">Status</dt>
                 <dd className="text-white">{movie.status || "—"}</dd>
               </div>
               <div>
-                <dt className="text-neutral-500">Hãng sản xuất</dt>
+                <dt className="text-neutral-500">Production</dt>
                 <dd className="text-white">
                   {movie.production_companies?.length
                     ? movie.production_companies.map((company) => company.name).join(", ")
@@ -152,7 +152,7 @@ const MovieDetail = () => {
               to="/discover"
               className="mt-8 inline-block rounded border border-neutral-500 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:border-white hover:bg-white/10"
             >
-              Tìm phim khác
+              Find another movie
             </Link>
           </div>
         </div>
@@ -160,10 +160,10 @@ const MovieDetail = () => {
 
       {/* ===== DÀN DIỄN VIÊN ===== */}
       <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
-        <h2 className="mb-6 text-xl font-bold text-white">Dàn diễn viên</h2>
+        <h2 className="mb-6 text-xl font-bold text-white">Cast</h2>
 
         {mainCast.length === 0 ? (
-          <p className="text-neutral-400">TMDB chưa có thông tin diễn viên cho phim này.</p>
+          <p className="text-neutral-400">TMDB has no cast information for this film.</p>
         ) : (
           <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
             {mainCast.map((person) => (

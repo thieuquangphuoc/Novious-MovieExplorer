@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 
 import { NavBar } from './components/NavBar';
+import Footer from './components/Footer';
 
 import Home from './pages/Home';
 import Discover from './pages/Discover';
@@ -27,10 +28,7 @@ const App = () => {
         );
       })}</Routes>
 
-      {/* TMDB yeu cau ghi attribution o moi noi dung dung du lieu cua ho */}
-      <footer className="mt-16 border-t border-neutral-800 px-4 py-8 text-center text-xs text-neutral-500">
-        This product uses the TMDB API but is not endorsed or certified by TMDB.
-      </footer>
+      <Footer/>
     </div>
   );
 };
