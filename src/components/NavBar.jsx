@@ -48,9 +48,17 @@ export const NavBar = () => {
             <div className="mx-auto flex max-w-7xl flex-col items-center gap-3 px-4 py-3 sm:flex-row sm:justify-between sm:px-6 sm:py-4 lg:px-8">
                 <NavLink
                     to="/"
-                    className="font-display text-3xl tracking-[0.15em] text-white transition-colors hover:text-[#E50914]"
+                    className="group flex items-center gap-2.5 text-white transition-colors hover:text-[#E50914]"
                 >
-                    NOVIOUS
+                    {/* BASE_URL, not a bare "/": vite.config.js serves the app from
+                        /Novious-MovieExplorer/, and Vite only rewrites absolute paths
+                        inside index.html, never inside JSX */}
+                    <img
+                        src={`${import.meta.env.BASE_URL}logo-96.png`}
+                        alt=""
+                        className="h-9 w-9 transition-transform duration-300 group-hover:scale-110"
+                    />
+                    <span className="font-display text-3xl tracking-[0.15em]">NOVIOUS</span>
                 </NavLink>
 
                 <div className="flex items-center gap-5 sm:gap-8">

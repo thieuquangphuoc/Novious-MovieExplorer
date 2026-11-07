@@ -61,7 +61,10 @@ const Footer = () => {
       <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-10 md:flex-row md:justify-between">
           <div className="max-w-sm">
-            <p className="font-display text-3xl tracking-[0.15em] text-white">NOVIOUS</p>
+            <div className="flex items-center gap-2.5">
+              <img src={`${import.meta.env.BASE_URL}logo-96.png`} alt="" className="h-10 w-10" />
+              <p className="font-display text-3xl tracking-[0.15em] text-white">NOVIOUS</p>
+            </div>
             <p className="mt-3 text-sm leading-relaxed text-neutral-400">
               Browse what the world is watching, search the catalogue, test your film
               knowledge, and see the numbers behind the trends.

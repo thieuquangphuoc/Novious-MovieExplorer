@@ -36,7 +36,10 @@ const Arrow = ({ direction, onClick }) => (
  *
  * numbered renders the Top 10 variant: a hollow numeral behind each poster,
  * sized to stand as tall as the artwork, with the poster pulled back over its
- * tail. Cards come from the same PosterCard either way, so all three rows on
+ * tail. The pull has to be generous — a digit that big carries a lot of empty
+ * space inside its own glyph box, so a small negative margin leaves what looks
+ * like a gap between the number and the film it belongs to. Too generous and
+ * the narrow digits — 1 above all — disappear behind the poster entirely. Cards come from the same PosterCard either way, so all three rows on
  * the home page are exactly the same size.
  */
 const ScrollRow = ({ title, movies, numbered = false, limit }) => {
@@ -76,7 +79,7 @@ const ScrollRow = ({ title, movies, numbered = false, limit }) => {
                   {index + 1}
                 </span>
 
-                <div className="-ml-12">
+                <div className="-ml-20">
                   <PosterCard movie={movie} />
                 </div>
               </div>

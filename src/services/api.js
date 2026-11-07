@@ -150,18 +150,45 @@ export const getMoviesWithTrailers = async (category, count = 12) => {
 };
 
 /*
+ * Fisher-Yates shuffle on a copy of the array.
+ *
+ * The copy matters: heroMovieIds is a module-level import shared by every
+ * caller, and shuffling it where it lies would quietly reorder it for the
+ * rest of the session.
+ */
+const shuffle = (items) => {
+  const copy = [...items];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+};
+
+/*
  * The films shown in the hero carousel on the home page.
  *
- * Which films they are is chosen by hand in src/data/heroMovies.js; that
- * file holds nothing but TMDB ids.
+ * The pool of candidates is chosen by hand in src/data/heroMovies.js; that
+ * file holds nothing but TMDB ids. The pool is shuffled on every load and
+ * only `count` films are kept, so the carousel is a different line-up each
+ * time somebody opens the page.
  *
- * Promise.all fetches them all at once rather than one after another. A bad
- * id makes getMovieDetails return null, and the filter at the end drops it,
- * so a single typo cannot empty the whole carousel.
+ * A few more than `count` are fetched, because a film can be dropped for
+ * missing a backdrop or a poster; without that margin an unlucky draw
+ * would leave the carousel short. The extras are discarded afterwards.
+ *
+ * Promise.all fetches them at once rather than one after another. A bad id
+ * makes getMovieDetails return null and is filtered out, so a typo in the
+ * pool cannot empty the carousel.
  */
-export const getHeroMovies = async () => {
-  const movies = await Promise.all(heroMovieIds.map((id) => getMovieDetails(id)));
-  return movies.filter((movie) => movie !== null && movie.backdrop_path && movie.poster_path);
+export const getHeroMovies = async (count = 10) => {
+  const chosen = shuffle(heroMovieIds).slice(0, count + 4);
+
+  const movies = await Promise.all(chosen.map((id) => getMovieDetails(id)));
+
+  return movies
+    .filter((movie) => movie !== null && movie.backdrop_path && movie.poster_path)
+    .slice(0, count);
 };
 
 export const getGenres = async () => {
