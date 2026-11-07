@@ -2,21 +2,28 @@ import { useState, useEffect } from "react";
 import { getHeroMovies, getTrending, getTopRated } from "../services/api";
 import Hero from "../components/Hero";
 import ScrollRow from "../components/ScrollRow";
+import TrailerSection from "../components/TrailerSection";
 
 const SLIDE_MS = 4000;    // auto-advance every 4 seconds
 
 /*
  * Geometry of the hero carousel.
  *
- * Each card takes 86% of the width, so 14% is left over — 7% on each side,
- * where the previous and next films peek in.
+ * Each card takes SLIDE_WIDTH% of the width, leaving the rest split evenly
+ * between the two edges, where the previous and next films peek in.
  *
- * To centre card i, the track shifts by 50% minus the centre of that card:
- *   50 - (i + 0.5) * 86  =  7 - i * 86
- * which is exactly the formula used below. Changing SLIDE_WIDTH alone keeps
- * the maths correct, so the amount of peek is a one-number decision.
+ * To centre card i the track shifts by 50% minus the centre of that card,
+ * which is what trackOffset works out.
+ *
+ * The two numbers are tied together. A card off to the side is also scaled
+ * down, and scaling pulls its edges inward, away from the screen edge — so
+ * shrinking the neighbours eats into the peek. At 86% wide and 0.84 scale
+ * the neighbours retreated so far that nothing showed at all, and 82% with
+ * 0.90 still left only about 43px. 76% with a 0.92 scale shows roughly 90px
+ * of artwork on each side, which reads clearly as another film waiting.
  */
-const SLIDE_WIDTH = 86;
+const SLIDE_WIDTH = 76;
+const ROW_PAGES = 4;      // four TMDB pages, so roughly 80 films per row
 const trackOffset = (index) => (100 - SLIDE_WIDTH) / 2 - index * SLIDE_WIDTH;
 
 const Home = () => {
@@ -38,8 +45,8 @@ const Home = () => {
     const load = async () => {
       const [hero, week, rated, day] = await Promise.all([
         getHeroMovies(),
-        getTrending("week"),
-        getTopRated(),
+        getTrending("week", ROW_PAGES),
+        getTopRated(ROW_PAGES),
         getTrending("day"),
       ]);
       setHeroMovies(hero);
@@ -79,7 +86,7 @@ const Home = () => {
         // grey block of the right height so the page does not jump when the images land
         <div className="mx-auto h-[58vh] max-h-[560px] min-h-[400px] w-[86%] animate-pulse rounded-xl bg-[#1c1c1c]" />
       ) : (
-        <div className="group/hero relative overflow-hidden">
+        <div className="group/hero relative overflow-hidden py-4">
           <div
             className="flex transition-transform duration-700 ease-out"
             style={{ transform: `translateX(${trackOffset(index)}%)` }}
@@ -93,10 +100,10 @@ const Home = () => {
                 {/* only the centre card is at full size; the neighbours sit back */}
                 <div
                   className={`h-full transition-all duration-700 ease-out ${
-                    i === index ? "scale-100 opacity-100" : "scale-90 opacity-40"
+                    i === index ? "scale-[1.04] opacity-100" : "scale-[0.92] opacity-60"
                   }`}
                 >
-                  <Hero movie={movie} />
+                  <Hero movie={movie} isActive={i === index} />
                 </div>
               </div>
             ))}
@@ -142,6 +149,8 @@ const Home = () => {
       <ScrollRow title="Trending this week" movies={trendingWeek} />
       <ScrollRow title="Top rated of all time" movies={topRated} />
       <ScrollRow title="Top 10 today" movies={trendingDay} numbered limit={10} />
+
+      <TrailerSection />
     </div>
   );
 };

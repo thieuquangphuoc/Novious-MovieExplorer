@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getMovieDetails, getMovieCredits } from "../services/api";
+import { getMovieDetails, getMovieCredits, getTrailerKey } from "../services/api";
+import TrailerModal from "../components/TrailerModal";
 
 const BACKDROP_BASE = "https://image.tmdb.org/t/p/original";
 const POSTER_BASE = "https://image.tmdb.org/t/p/w500";
@@ -38,17 +39,22 @@ const MovieDetail = () => {
 
   const [movie, setMovie] = useState(null);
   const [cast, setCast] = useState([]);
+  const [trailerKey, setTrailerKey] = useState(null);
+  const [showTrailer, setShowTrailer] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const [details, credits] = await Promise.all([
+      const [details, credits, key] = await Promise.all([
         getMovieDetails(id),
         getMovieCredits(id),
+        getTrailerKey(id),
       ]);
       setMovie(details);
       setCast(credits);
+      setTrailerKey(key);
+      setShowTrailer(false);      // close the player when moving to another film
       setLoading(false);
     };
     load();
@@ -149,12 +155,27 @@ const MovieDetail = () => {
               </div>
             </dl>
 
-            <Link
-              to="/discover"
-              className="mt-8 inline-block rounded border border-neutral-500 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:border-white hover:bg-white/10"
-            >
-              Find another movie
-            </Link>
+            <div className="mt-8 flex flex-wrap gap-3">
+              {/* only offered when TMDB actually has a video for this film */}
+              {trailerKey && (
+                <button
+                  onClick={() => setShowTrailer(true)}
+                  className="inline-flex items-center gap-2 rounded bg-[#E50914] px-6 py-2.5 text-sm font-semibold text-white transition duration-200 hover:scale-105 hover:bg-[#f6121d]"
+                >
+                  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                  Watch trailer
+                </button>
+              )}
+
+              <Link
+                to="/discover"
+                className="inline-block rounded border border-neutral-500 px-6 py-2.5 text-sm font-semibold text-white transition duration-200 hover:scale-105 hover:border-white hover:bg-white/10"
+              >
+                Find another movie
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -181,6 +202,12 @@ const MovieDetail = () => {
           </div>
         )}
       </section>
+
+      <TrailerModal
+        trailerKey={showTrailer ? trailerKey : null}
+        title={movie.title}
+        onClose={() => setShowTrailer(false)}
+      />
     </div>
   );
 };
