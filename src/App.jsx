@@ -6,12 +6,14 @@ import Home from './pages/Home';
 import Discover from './pages/Discover';
 import Quiz from './pages/Quiz';
 import Insights from './pages/Insights';
+import MovieDetail from './pages/MovieDetail';
 
 const eachElement = [
   { path: "/", element: <Home/>},
   { path: "/discover", element: <Discover/>},
   { path: "/quiz", element: <Quiz/>},
   { path: "/insights", element: <Insights/>},
+  { path: "/movie/:id", element: <MovieDetail/>},
 ];
 
 

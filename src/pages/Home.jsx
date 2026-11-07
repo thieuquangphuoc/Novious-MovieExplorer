@@ -3,7 +3,6 @@ import { getHeroMovies } from "../services/api";
 import Hero from "../components/Hero";
 
 const SLIDE_MS = 4000;   // 4 giây tự chuyển một lần
-const HERO_COUNT = 6;
 
 const Home = () => {
   const [movies, setMovies] = useState([]);
@@ -12,7 +11,7 @@ const Home = () => {
   // nạp danh sách phim cho hero, chỉ một lần khi mở trang
   useEffect(() => {
     const load = async () => {
-      const data = await getHeroMovies(HERO_COUNT);
+      const data = await getHeroMovies();
       setMovies(data);
     };
     load();
@@ -59,7 +58,7 @@ const Home = () => {
       <button
         onClick={goPrev}
         aria-label="Phim trước"
-        className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-3 text-white opacity-60 transition hover:bg-[#E50914] hover:opacity-100 focus:opacity-100"
+        className="absolute bottom-4 left-4 rounded-full bg-black/50 p-2 text-white opacity-60 transition hover:bg-[#E50914] hover:opacity-100 focus:opacity-100 lg:bottom-auto lg:top-1/2 lg:-translate-y-1/2 lg:p-3"
       >
         <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -69,7 +68,7 @@ const Home = () => {
       <button
         onClick={goNext}
         aria-label="Phim tiếp theo"
-        className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-3 text-white opacity-60 transition hover:bg-[#E50914] hover:opacity-100 focus:opacity-100"
+        className="absolute bottom-4 right-4 rounded-full bg-black/50 p-2 text-white opacity-60 transition hover:bg-[#E50914] hover:opacity-100 focus:opacity-100 lg:bottom-auto lg:top-1/2 lg:-translate-y-1/2 lg:p-3"
       >
         <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />

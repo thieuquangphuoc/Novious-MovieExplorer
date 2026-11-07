@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const IMG_BASE = "https://image.tmdb.org/t/p/w500";
 
 const MovieCard = ({ movie }) => {
@@ -9,7 +11,7 @@ const MovieCard = ({ movie }) => {
   const rating = movie.vote_average ? movie.vote_average.toFixed(1) : "N/A";
 
   return (
-    <div className="group cursor-pointer">
+    <Link to={`/movie/${movie.id}`} className="group block cursor-pointer">
       {/* khung poster */}
       <div className="relative overflow-hidden rounded-md transition-transform duration-300 ease-out group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-black/60">
         <img
@@ -32,7 +34,7 @@ const MovieCard = ({ movie }) => {
         {movie.title}
       </h3>
       <p className="text-xs text-neutral-500">{year}</p>
-    </div>
+    </Link>
   );
 }
 

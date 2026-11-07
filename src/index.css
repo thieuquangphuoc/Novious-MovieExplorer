@@ -1,2 +1,7 @@
 @import "tailwindcss";
 
+/* Tailwind v4 đọc @theme để sinh ra class tiện ích.
+   Khai báo này tạo ra class font-display dùng cho logo NOVIOUS. */
+@theme {
+  --font-display: "Bebas Neue", sans-serif;
+}
