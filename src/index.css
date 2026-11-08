@@ -256,3 +256,81 @@
     animation-iteration-count: 1;
   }
 }
+
+/*
+ * Living background for The ONE Movie Challenge.
+ *
+ * The band must not take its colour from the chosen film — that made the
+ * whole section flicker between palettes on every answer. But a flat
+ * rectangle is dead. So the colour moves instead of changing: three wide,
+ * heavily blurred blobs drifting on long loops of different lengths, which
+ * never line up and so never repeat visibly.
+ *
+ * Over them, a single wide band of light crosses the section like a
+ * projector beam passing through a dark room. It is the only hard-edged
+ * movement, and at five per cent white it registers without ever competing
+ * with the text.
+ *
+ * Durations are deliberately long. Anything quick enough to notice while
+ * reading would be a distraction rather than atmosphere.
+ */
+@keyframes drift-one {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(18%, 12%, 0) scale(1.25);
+  }
+}
+
+@keyframes drift-two {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1.15);
+  }
+  50% {
+    transform: translate3d(-22%, -14%, 0) scale(0.9);
+  }
+}
+
+@keyframes drift-three {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(0.95);
+  }
+  50% {
+    transform: translate3d(14%, -18%, 0) scale(1.3);
+  }
+}
+
+.drift-one {
+  animation: drift-one 23s ease-in-out infinite;
+}
+
+.drift-two {
+  animation: drift-two 31s ease-in-out infinite;
+}
+
+.drift-three {
+  animation: drift-three 27s ease-in-out infinite;
+}
+
+@keyframes light-sweep {
+  0% {
+    transform: translateX(-70%) skewX(-14deg);
+  }
+  100% {
+    transform: translateX(320%) skewX(-14deg);
+  }
+}
+
+.light-sweep {
+  animation: light-sweep 11s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drift-one,
+  .drift-two,
+  .drift-three,
+  .light-sweep {
+    animation: none;
+  }
+}

@@ -167,9 +167,16 @@ const OneMovieChallenge = () => {
         card had to compete with a copy of its own artwork. The film's
         colour now belongs to the card alone; the band behind it stays put.
       */}
-      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[#101010]">
-        <div className="absolute -left-32 top-0 h-80 w-80 rounded-full bg-[#E50914]/12 blur-[130px]" />
-        <div className="absolute -right-24 bottom-0 h-72 w-72 rounded-full bg-[#E50914]/8 blur-[120px]" />
+      <div aria-hidden="true" className="absolute inset-0 -z-10 overflow-hidden bg-[#101010]">
+        {/* three slow drifts on loops of 23s, 31s and 27s — lengths that do
+            not divide into each other, so the pattern never visibly repeats */}
+        <div className="drift-one absolute -left-40 top-[-20%] h-[26rem] w-[26rem] rounded-full bg-[#E50914]/25 blur-[130px]" />
+        <div className="drift-two absolute right-[-10%] top-[10%] h-[24rem] w-[24rem] rounded-full bg-[#b4531a]/22 blur-[140px]" />
+        <div className="drift-three absolute bottom-[-25%] left-[35%] h-[22rem] w-[22rem] rounded-full bg-[#2b4a63]/26 blur-[130px]" />
+
+        {/* the projector beam */}
+        <div className="light-sweep absolute inset-y-[-20%] -left-1/4 w-2/5 bg-gradient-to-r from-transparent via-white/[0.09] to-transparent" />
+
         <div className="film-grain absolute inset-0 opacity-[0.07]" />
         <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#141414] to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#141414] to-transparent" />
@@ -355,7 +362,7 @@ const OneMovieChallenge = () => {
                           <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M8 5v14l11-7z" />
                           </svg>
-                          Watch now
+                          Watch Trailer
                         </button>
                       ) : (
                         <span
