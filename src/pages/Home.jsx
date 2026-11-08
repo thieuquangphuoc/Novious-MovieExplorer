@@ -148,9 +148,10 @@ const Home = () => {
       {/* ===== FILM ROWS ===== */}
       <ScrollRow title="Trending this week" movies={trendingWeek} />
       <ScrollRow title="Top rated of all time" movies={topRated} />
-      <ScrollRow title="Top 10 today" movies={trendingDay} numbered limit={10} />
 
       <TrailerSection />
+
+      <ScrollRow title="Top 10 today" movies={trendingDay} numbered limit={10} />
     </div>
   );
 };

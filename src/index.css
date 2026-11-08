@@ -21,3 +21,31 @@
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/*
+ * Fade used by the trailer strip's ambient background.
+ *
+ * The backdrop behind the strip swaps to whichever film the visitor is
+ * pointing at. Changing an <img> src cannot be transitioned, so React is
+ * given a key per image: the old one unmounts, the new one mounts and fades
+ * in from nothing. Over a heavily blurred, heavily dimmed layer that reads
+ * as a soft cross-fade.
+ */
+@keyframes ambient-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.ambient-in {
+  animation: ambient-in 700ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-in {
+    animation: none;
+  }
+}
