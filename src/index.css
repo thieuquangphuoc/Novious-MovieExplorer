@@ -149,3 +149,29 @@
 .decade-slider:focus-visible::-webkit-slider-thumb {
   transform: scale(1.15);
 }
+
+/*
+ * The little left-right nudge on the Movie Machine hint.
+ *
+ * A slider that already looks finished does not tell anybody it can be
+ * dragged, so the hint icon keeps moving the way the handle is meant to.
+ * It stops for anyone who has asked their system to reduce motion.
+ */
+@keyframes nudge-x {
+  0%, 100% {
+    transform: translateX(-2px);
+  }
+  50% {
+    transform: translateX(2px);
+  }
+}
+
+.nudge-x {
+  animation: nudge-x 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nudge-x {
+    animation: none;
+  }
+}

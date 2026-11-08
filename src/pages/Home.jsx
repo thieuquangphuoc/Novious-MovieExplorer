@@ -145,7 +145,6 @@ const Home = () => {
       
       <TrailerSection />
       <MovieMachine />
-
       <ScrollRow title="Top rated of all time" movies={topRated} />
 
       {/* Parked, not deleted. Both rows still work — ScrollRow and the

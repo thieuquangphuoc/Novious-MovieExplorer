@@ -15,7 +15,13 @@
  *   blurb     one line of context, so the slider teaches as well as filters
  *   from/via/to   the three stops of the background gradient
  *   accent    the decade's highlight colour, used on the handle and the era
- *   font      CSS font-family stack for the heading
+ *   font      display face, for the decade number and the era
+ *   bodyFont  face for the smaller text underneath
+
+ *             Two faces, not one, because the display choice cannot carry
+ *             body copy: Bebas Neue has no lower case worth reading at
+ *             14px. Each pair is from the same family of shapes, so the
+ *             panel still reads as one typeface decision per decade.
  *   grain     0 to 1; how much film grain sits over the panel
  *
  * Why it starts at 1920: TMDB does hold older films — A Trip to the Moon is
@@ -34,6 +40,7 @@ const decades = [
     to: "#0d0d0d",
     accent: "#d9c9a3",
     font: '"Playfair Display", Georgia, serif',
+    bodyFont: '"Playfair Display", Georgia, serif',
     grain: 0.9,
   },
   {
@@ -46,6 +53,7 @@ const decades = [
     to: "#120d08",
     accent: "#e0b454",
     font: '"Playfair Display", Georgia, serif',
+    bodyFont: '"Playfair Display", Georgia, serif',
     grain: 0.75,
   },
   {
@@ -58,6 +66,7 @@ const decades = [
     to: "#090c10",
     accent: "#8fa9c4",
     font: '"Playfair Display", Georgia, serif',
+    bodyFont: '"Playfair Display", Georgia, serif',
     grain: 0.7,
   },
   {
@@ -70,6 +79,7 @@ const decades = [
     to: "#140705",
     accent: "#f0a04b",
     font: '"Playfair Display", Georgia, serif',
+    bodyFont: '"Playfair Display", Georgia, serif',
     grain: 0.55,
   },
   {
@@ -82,6 +92,7 @@ const decades = [
     to: "#10100a",
     accent: "#e8d05a",
     font: '"Playfair Display", Georgia, serif',
+    bodyFont: '"Playfair Display", Georgia, serif',
     grain: 0.45,
   },
   {
@@ -94,6 +105,7 @@ const decades = [
     to: "#140a03",
     accent: "#ff8a3d",
     font: '"Oswald", "Arial Narrow", sans-serif',
+    bodyFont: '"Oswald", "Arial Narrow", sans-serif',
     grain: 0.4,
   },
   {
@@ -106,6 +118,7 @@ const decades = [
     to: "#07030f",
     accent: "#ff3df0",
     font: '"Bebas Neue", Impact, sans-serif',
+    bodyFont: '"Oswald", "Arial Narrow", sans-serif',
     grain: 0.3,
   },
   {
@@ -118,6 +131,7 @@ const decades = [
     to: "#060f0e",
     accent: "#4fd6c0",
     font: '"Oswald", "Arial Narrow", sans-serif',
+    bodyFont: '"Oswald", "Arial Narrow", sans-serif',
     grain: 0.25,
   },
   {
@@ -130,6 +144,7 @@ const decades = [
     to: "#050a12",
     accent: "#6fb6ff",
     font: '"Oswald", "Arial Narrow", sans-serif',
+    bodyFont: '"Oswald", "Arial Narrow", sans-serif',
     grain: 0.18,
   },
   {
@@ -142,6 +157,7 @@ const decades = [
     to: "#070d11",
     accent: "#ffb648",
     font: '"Bebas Neue", Impact, sans-serif',
+    bodyFont: '"Oswald", "Arial Narrow", sans-serif',
     grain: 0.12,
   },
   {
@@ -154,6 +170,7 @@ const decades = [
     to: "#0a0304",
     accent: "#E50914",
     font: '"Bebas Neue", Impact, sans-serif',
+    bodyFont: '"Oswald", "Arial Narrow", sans-serif',
     grain: 0.08,
   },
 ];

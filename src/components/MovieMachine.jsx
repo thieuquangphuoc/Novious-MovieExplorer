@@ -51,12 +51,20 @@ const Arrow = ({ direction, onClick, accent }) => (
  */
 const MovieMachine = () => {
   const [index, setIndex] = useState(DEFAULT_INDEX);
+  // the hint is a teaching aid; once the visitor has used the slider it
+  // steps back rather than keeping on waving at them
+  const [touched, setTouched] = useState(false);
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const trackRef = useRef(null);
 
   const decade = decades[index];
+
+  const pickDecade = (next) => {
+    setIndex(next);
+    setTouched(true);
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -112,7 +120,7 @@ const MovieMachine = () => {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <p
           className="mb-1.5 text-xs font-semibold uppercase tracking-[0.25em]"
-          style={{ color: decade.accent }}
+          style={{ color: decade.accent, fontFamily: decade.bodyFont }}
         >
           The Movie Machine
         </p>
@@ -129,32 +137,78 @@ const MovieMachine = () => {
           </p>
         </div>
 
-        <p className="mt-2 max-w-2xl text-sm text-neutral-400">{decade.blurb}</p>
+        <p
+          className="mt-2 max-w-2xl text-sm text-neutral-400"
+          style={{ fontFamily: decade.bodyFont }}
+        >
+          {decade.blurb}
+        </p>
 
         {/* ===== SLIDER ===== */}
         <div className="mt-7">
+          {/*
+            Nobody drags a control they have not noticed. The line says what
+            to do, the arrows keep moving so the eye lands on them, and the
+            whole thing recedes to a third of its opacity the moment the
+            visitor actually uses the slider.
+          */}
+          <div
+            className={`mb-2 flex items-center gap-2 text-xs transition-opacity duration-500 ${
+              touched ? "opacity-30" : "opacity-100"
+            }`}
+            style={{ fontFamily: decade.bodyFont, color: decade.accent }}
+          >
+            <svg
+              className={touched ? "h-4 w-4" : "nudge-x h-4 w-4"}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8 7l-5 5 5 5M16 7l5 5-5 5" />
+            </svg>
+            <span>Drag to travel through cinema — or pick a year below</span>
+          </div>
+
           <input
             type="range"
             min={0}
             max={decades.length - 1}
             step={1}
             value={index}
-            onChange={(event) => setIndex(Number(event.target.value))}
+            onChange={(event) => pickDecade(Number(event.target.value))}
             aria-label="Choose a decade"
             aria-valuetext={`${decade.label}, ${decade.era}`}
             className="decade-slider"
             style={{ "--accent": decade.accent }}
           />
 
-          {/* ticks double as buttons, for anyone who would rather jump than drag */}
+          {/* a notch per stop, so the rail looks like something with steps
+              rather than a smooth line that happens to snap */}
+          <div aria-hidden="true" className="-mt-1.5 flex justify-between px-[9px]">
+            {decades.map((item, i) => (
+              <span
+                key={item.start}
+                className="h-2 w-px transition-colors duration-300"
+                style={{ background: i === index ? decade.accent : "rgba(255,255,255,0.22)" }}
+              />
+            ))}
+          </div>
+
+          {/* the years are buttons too, for anyone who would rather jump */}
           <div className="mt-1 flex justify-between">
             {decades.map((item, i) => (
               <button
                 key={item.start}
-                onClick={() => setIndex(i)}
+                onClick={() => pickDecade(i)}
                 aria-label={`Jump to the ${item.label}`}
-                className={`-mx-1 px-1 text-[11px] tabular-nums transition-colors sm:text-xs ${
-                  i === index ? "font-bold text-white" : "text-neutral-500 hover:text-neutral-300"
+                style={{
+                  fontFamily: decade.bodyFont,
+                  color: i === index ? decade.accent : undefined,
+                }}
+                className={`-mx-1 rounded px-1.5 py-0.5 text-[11px] tabular-nums transition-colors sm:text-xs ${
+                  i === index ? "font-bold" : "text-neutral-500 hover:bg-white/10 hover:text-white"
                 }`}
               >
                 {item.start}
@@ -179,7 +233,7 @@ const MovieMachine = () => {
             : movies.map((movie) => <PosterCard key={movie.id} movie={movie} />)}
 
           {!loading && movies.length === 0 && (
-            <p className="py-10 text-neutral-400">
+            <p className="py-10 text-neutral-400" style={{ fontFamily: decade.bodyFont }}>
               TMDB has nothing to show for the {decade.label}.
             </p>
           )}
