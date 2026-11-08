@@ -47,6 +47,29 @@ const fetchPages = async (path, pages, extraParams = "") => {
 export const getTrending = async (timeWindow = "week", pages = 1) =>
   fetchPages(`/trending/movie/${timeWindow}`, pages);
 
+/*
+ * Films released inside one decade, most popular first.
+ *
+ * /discover is the only endpoint that filters by release date, and it takes
+ * a full date on both ends rather than a year, hence the 1st of January to
+ * the 31st of December.
+ *
+ * vote_count.gte keeps out the long tail of titles nobody has rated, which
+ * on the older decades is most of what /discover returns. The threshold is
+ * deliberately low: a 1920s film with forty votes is a classic, while the
+ * same number in the 2020s would be nothing — sorting by popularity sorts
+ * that difference out on its own.
+ */
+export const getMoviesByDecade = async (startYear, pages = 2) => {
+  const range =
+    `&primary_release_date.gte=${startYear}-01-01` +
+    `&primary_release_date.lte=${startYear + 9}-12-31`;
+  const filters = "&sort_by=popularity.desc&vote_count.gte=30&include_adult=false";
+
+  const movies = await fetchPages("/discover/movie", pages, range + filters);
+  return movies.filter((movie) => movie.poster_path);
+};
+
 // category: popular | now_playing | upcoming | top_rated
 export const getMovieList = async (category, pages = 1) =>
   fetchPages(`/movie/${category}`, pages);

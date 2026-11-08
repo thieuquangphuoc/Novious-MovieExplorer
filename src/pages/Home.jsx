@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { getHeroMovies, getTrending, getTopRated } from "../services/api";
+import { getHeroMovies, getTopRated } from "../services/api";
 import Hero from "../components/Hero";
 import ScrollRow from "../components/ScrollRow";
+import MovieMachine from "../components/MovieMachine";
 import TrailerSection from "../components/TrailerSection";
 
 const SLIDE_MS = 4000;    // auto-advance every 4 seconds
@@ -30,29 +31,24 @@ const Home = () => {
   const [heroMovies, setHeroMovies] = useState([]);
   const [index, setIndex] = useState(0);
 
-  const [trendingWeek, setTrendingWeek] = useState([]);
   const [topRated, setTopRated] = useState([]);
-  const [trendingDay, setTrendingDay] = useState([]);
 
   /*
-   * Load everything the page needs, once, on mount.
+   * Load what this page owns, once, on mount.
    *
-   * The four calls run in parallel through Promise.all because none of them
-   * depends on another — awaiting them one by one would simply take four
-   * times as long for no benefit.
+   * The two calls run in parallel through Promise.all because neither
+   * depends on the other. MovieMachine and TrailerSection fetch their own
+   * data, since what they need changes with the decade or tab the visitor
+   * picks and only they know which one that is.
    */
   useEffect(() => {
     const load = async () => {
-      const [hero, week, rated, day] = await Promise.all([
+      const [hero, rated] = await Promise.all([
         getHeroMovies(),
-        getTrending("week", ROW_PAGES),
         getTopRated(ROW_PAGES),
-        getTrending("day"),
       ]);
       setHeroMovies(hero);
-      setTrendingWeek(week);
       setTopRated(rated);
-      setTrendingDay(day);
     };
     load();
   }, []);
@@ -146,12 +142,17 @@ const Home = () => {
       )}
 
       {/* ===== FILM ROWS ===== */}
-      <ScrollRow title="Trending this week" movies={trendingWeek} />
+      
+      <TrailerSection />
+      <MovieMachine />
+
       <ScrollRow title="Top rated of all time" movies={topRated} />
 
-      <TrailerSection />
-
-      <ScrollRow title="Top 10 today" movies={trendingDay} numbered limit={10} />
+      {/* Parked, not deleted. Both rows still work — ScrollRow and the
+          trending endpoints are untouched — so either can come back with
+          one line plus its fetch:
+          <ScrollRow title="Trending this week" movies={trendingWeek} />
+          <ScrollRow title="Top 10 today" movies={trendingDay} numbered limit={10} /> */}
     </div>
   );
 };

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { getMoviesWithTrailers } from "../services/api";
 import TrailerModal from "./TrailerModal";
 import StarRating from "./StarRating";
+import ScrollProgressBar from "./ScrollProgressBar";
 
 const CARD_BACKDROP = "https://image.tmdb.org/t/p/w780";
 const AMBIENT_BACKDROP = "https://image.tmdb.org/t/p/w780";
@@ -56,8 +57,10 @@ const Arrow = ({ direction, onClick }) => (
  *   hovered it borrows the first film's.
  * - Hairline borders top and bottom, plus a soft red glow, to mark the band
  *   as its own stretch of page.
- * - Gradient masks at the left and right ends of the strip, so cards fade
- *   out at the edges instead of being chopped off.
+ * - A mask on the strip, so cards fade out at the two ends instead of
+ *   being chopped off. It has to be a mask rather than a coloured overlay:
+ *   an overlay would have to match the background, and the background here
+ *   changes with every film.
  *
  * Switching tab refetches, because a film's trailer needs its own request
  * and pulling all four lists up front would mean roughly fifty requests on
@@ -66,7 +69,8 @@ const Arrow = ({ direction, onClick }) => (
  */
 const TrailerSection = () => {
   const [activeTab, setActiveTab] = useState(TABS[0].id);
-  const [cache, setCache] = useState({});
+  // what is on screen right now — kept through a tab change, not cleared
+  const [shown, setShown] = useState([]);
   const [loading, setLoading] = useState(true);
   const [playing, setPlaying] = useState(null);
   const [hovered, setHovered] = useState(null);
@@ -77,22 +81,40 @@ const TrailerSection = () => {
   // listing it as a dependency and re-running every time it is written to
   const loaded = useRef({});
 
+  /*
+   * Load the tab, but never empty the strip to do it.
+   *
+   * The obvious version rendered `cache[activeTab] || []`, which is empty
+   * the instant an uncached tab is picked: the cards became grey blocks,
+   * the ambient backdrop vanished, and the arrows and the scrollbar
+   * unmounted — taking their height with them, so the rest of the page
+   * jumped. It read as the whole section reloading, and it only stopped
+   * once every tab had been visited and cached.
+   *
+   * So the previous tab's cards stay on screen, dimmed, until the new ones
+   * are ready. Skeletons are now only for the very first load, when there
+   * is genuinely nothing to keep.
+   */
   useEffect(() => {
-    if (loaded.current[activeTab]) {
+    const cached = loaded.current[activeTab];
+    if (cached) {
+      setShown(cached);
       setLoading(false);
+      if (trackRef.current) trackRef.current.scrollLeft = 0;
       return;
     }
 
     let cancelled = false;
-    setLoading(true);
 
     const load = async () => {
+      setLoading(true);
       const movies = await getMoviesWithTrailers(activeTab, 12);
       // the visitor may have changed tab while this was in flight
       if (cancelled) return;
       loaded.current[activeTab] = movies;
-      setCache({ ...loaded.current });
+      setShown(movies);
       setLoading(false);
+      if (trackRef.current) trackRef.current.scrollLeft = 0;
     };
 
     load();
@@ -101,8 +123,7 @@ const TrailerSection = () => {
     };
   }, [activeTab]);
 
-  const movies = cache[activeTab] || [];
-  const ambient = hovered?.backdrop_path || movies[0]?.backdrop_path || null;
+  const ambient = hovered?.backdrop_path || shown[0]?.backdrop_path || null;
 
   const scrollByPage = (direction) => {
     const track = trackRef.current;
@@ -150,7 +171,11 @@ const TrailerSection = () => {
             {TABS.map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  // a film from the tab being left behind must not keep tinting the panel
+                  setHovered(null);
+                }}
                 className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-300 ${
                   activeTab === tab.id
                     ? "bg-[#E50914] text-white shadow-lg shadow-[#E50914]/30"
@@ -166,28 +191,20 @@ const TrailerSection = () => {
 
       {/* ===== STRIP ===== */}
       <div className="group/strip relative mt-8">
-        {/* fade the cards out at both ends instead of cutting them */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 left-0 z-20 w-12 bg-gradient-to-r from-[#141414] to-transparent"
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 right-0 z-20 w-12 bg-gradient-to-l from-[#141414] to-transparent"
-        />
-
         <div
           ref={trackRef}
-          className="no-scrollbar mx-auto flex max-w-7xl gap-5 overflow-x-auto scroll-smooth px-4 py-2 sm:px-6 lg:px-8"
+          className={`no-scrollbar fade-edges mx-auto flex max-w-7xl gap-5 overflow-x-auto scroll-smooth px-4 py-2 transition-opacity duration-300 sm:px-6 lg:px-8 ${
+            loading && shown.length > 0 ? "pointer-events-none opacity-40" : "opacity-100"
+          }`}
         >
-          {loading
-            ? // placeholders of the same size, so the strip does not collapse while loading
+          {shown.length === 0
+            ? // only on the very first load, when there is nothing to keep
               Array.from({ length: 4 }).map((_, index) => (
                 <div key={index} className="w-[19rem] shrink-0 sm:w-[21rem]">
                   <div className="aspect-video w-full animate-pulse rounded-xl bg-white/5" />
                 </div>
               ))
-            : movies.map((movie) => (
+            : shown.map((movie) => (
                 <button
                   key={movie.id}
                   onClick={() => setPlaying(movie)}
@@ -230,17 +247,26 @@ const TrailerSection = () => {
                 </button>
               ))}
 
-          {!loading && movies.length === 0 && (
+          {!loading && shown.length === 0 && (
             <p className="py-10 text-neutral-400">
               No trailers available for this list right now.
             </p>
           )}
         </div>
 
-        {!loading && movies.length > 0 && (
+        {/* tied to shown, not to loading: unmounting these mid-load removed
+            their height and shunted the rest of the page upwards */}
+        {shown.length > 0 && (
           <>
             <Arrow direction={-1} onClick={() => scrollByPage(-1)} />
             <Arrow direction={1} onClick={() => scrollByPage(1)} />
+
+            {/* sits outside the masked strip, or its own ends would fade too */}
+            <ScrollProgressBar
+              trackRef={trackRef}
+              watch={activeTab}
+              className="mx-auto mt-4 max-w-7xl px-4 sm:px-6 lg:px-8"
+            />
           </>
         )}
       </div>

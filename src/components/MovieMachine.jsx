@@ -1,0 +1,205 @@
+import { useState, useEffect, useRef } from "react";
+import { getMoviesByDecade } from "../services/api";
+import decades from "../data/decades";
+import PosterCard from "./PosterCard";
+import ScrollProgressBar from "./ScrollProgressBar";
+
+// start on the present day rather than 1920, so the row opens with films
+// most visitors recognise and the slider reads as something to pull back
+const DEFAULT_INDEX = decades.length - 1;
+
+const Arrow = ({ direction, onClick, accent }) => (
+  <button
+    onClick={onClick}
+    aria-label={direction === -1 ? "Scroll left" : "Scroll right"}
+    style={{ "--accent": accent }}
+    className={`absolute top-[42%] z-30 -translate-y-1/2 rounded-full border border-white/15 bg-black/60 p-3 text-white opacity-0 backdrop-blur transition hover:bg-[var(--accent)] hover:text-black focus:opacity-100 group-hover/strip:opacity-100 ${
+      direction === -1 ? "left-2" : "right-2"
+    }`}
+  >
+    <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d={direction === -1 ? "M15 19l-7-7 7-7" : "M9 5l7 7-7 7"}
+      />
+    </svg>
+  </button>
+);
+
+/*
+ * The Movie Machine: a hundred years of cinema on one slider.
+ *
+ * Dragging the handle changes two things at once. The row reloads with the
+ * most popular films actually released in that decade, and the whole panel
+ * repaints itself in that decade's colours, typeface and amount of film
+ * grain — so 1940 arrives as cold noir blue in a serif, and 1980 as neon
+ * magenta. Every one of those values comes from src/data/decades.js.
+ *
+ * Three implementation notes:
+ *
+ * - The gradient is keyed on the decade and fades in. A CSS gradient is a
+ *   background-image, and background-image cannot be transitioned, so the
+ *   layer is replaced and the new one animates in over the old colour.
+ * - A `cancelled` flag guards the fetch. Dragging the slider fires a
+ *   request per decade passed through, and without the guard a slow early
+ *   response could land after a later one and leave the wrong films on
+ *   screen.
+ * - The slider is a real <input type="range">. Dragging, arrow keys, Home
+ *   and End and screen-reader support all come free; only its appearance
+ *   is redrawn, in index.css.
+ */
+const MovieMachine = () => {
+  const [index, setIndex] = useState(DEFAULT_INDEX);
+  const [movies, setMovies] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const trackRef = useRef(null);
+
+  const decade = decades[index];
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const load = async () => {
+      setLoading(true);
+      const results = await getMoviesByDecade(decade.start, 2);
+      if (cancelled) return;
+      setMovies(results);
+      setLoading(false);
+      // a new decade starts at its beginning, not where the last one ended
+      if (trackRef.current) trackRef.current.scrollLeft = 0;
+    };
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [decade.start]);
+
+  const scrollByPage = (direction) => {
+    const track = trackRef.current;
+    if (!track) return;
+    track.scrollBy({ left: direction * track.clientWidth * 0.85, behavior: "smooth" });
+  };
+
+  return (
+    <section
+      className="relative isolate overflow-hidden border-y border-white/10 py-14"
+      style={{ "--accent": decade.accent }}
+    >
+      {/* ===== DECADE BACKGROUND ===== */}
+      <div aria-hidden="true" className="absolute inset-0 -z-10">
+        <div
+          key={decade.start}
+          className="ambient-in absolute inset-0"
+          style={{
+            backgroundImage: `linear-gradient(140deg, ${decade.from} 0%, ${decade.via} 50%, ${decade.to} 100%)`,
+          }}
+        />
+
+        <div
+          className="film-grain absolute inset-0 mix-blend-overlay transition-opacity duration-700"
+          style={{ opacity: decade.grain }}
+        />
+
+        {/* melt the two edges into the page colour */}
+        <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#141414] to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#141414] to-transparent" />
+      </div>
+
+      {/* ===== HEADER ===== */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <p
+          className="mb-1.5 text-xs font-semibold uppercase tracking-[0.25em]"
+          style={{ color: decade.accent }}
+        >
+          The Movie Machine
+        </p>
+
+        <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-4">
+          <h2
+            className="text-3xl font-bold text-white sm:text-5xl"
+            style={{ fontFamily: decade.font }}
+          >
+            {decade.label}
+          </h2>
+          <p className="text-lg text-neutral-300" style={{ fontFamily: decade.font }}>
+            {decade.era}
+          </p>
+        </div>
+
+        <p className="mt-2 max-w-2xl text-sm text-neutral-400">{decade.blurb}</p>
+
+        {/* ===== SLIDER ===== */}
+        <div className="mt-7">
+          <input
+            type="range"
+            min={0}
+            max={decades.length - 1}
+            step={1}
+            value={index}
+            onChange={(event) => setIndex(Number(event.target.value))}
+            aria-label="Choose a decade"
+            aria-valuetext={`${decade.label}, ${decade.era}`}
+            className="decade-slider"
+            style={{ "--accent": decade.accent }}
+          />
+
+          {/* ticks double as buttons, for anyone who would rather jump than drag */}
+          <div className="mt-1 flex justify-between">
+            {decades.map((item, i) => (
+              <button
+                key={item.start}
+                onClick={() => setIndex(i)}
+                aria-label={`Jump to the ${item.label}`}
+                className={`-mx-1 px-1 text-[11px] tabular-nums transition-colors sm:text-xs ${
+                  i === index ? "font-bold text-white" : "text-neutral-500 hover:text-neutral-300"
+                }`}
+              >
+                {item.start}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ===== FILM ROW ===== */}
+      <div className="group/strip relative mt-8">
+        <div
+          ref={trackRef}
+          className="no-scrollbar fade-edges mx-auto flex max-w-7xl gap-4 overflow-x-auto scroll-smooth px-4 py-4 sm:px-6 lg:px-8"
+        >
+          {loading
+            ? Array.from({ length: 7 }).map((_, i) => (
+                <div key={i} className="w-40 shrink-0 sm:w-44">
+                  <div className="aspect-[2/3] w-full animate-pulse rounded-md bg-white/5" />
+                </div>
+              ))
+            : movies.map((movie) => <PosterCard key={movie.id} movie={movie} />)}
+
+          {!loading && movies.length === 0 && (
+            <p className="py-10 text-neutral-400">
+              TMDB has nothing to show for the {decade.label}.
+            </p>
+          )}
+        </div>
+
+        {!loading && movies.length > 0 && (
+          <>
+            <Arrow direction={-1} onClick={() => scrollByPage(-1)} accent={decade.accent} />
+            <Arrow direction={1} onClick={() => scrollByPage(1)} accent={decade.accent} />
+
+            <ScrollProgressBar
+              trackRef={trackRef}
+              watch={decade.start}
+              className="mx-auto mt-2 max-w-7xl px-4 sm:px-6 lg:px-8"
+            />
+          </>
+        )}
+      </div>
+    </section>
+  );
+};
+
+export default MovieMachine;
