@@ -313,24 +313,46 @@
   animation: drift-three 27s ease-in-out infinite;
 }
 
-@keyframes light-sweep {
-  0% {
-    transform: translateX(-70%) skewX(-14deg);
-  }
+/*
+ * Sparks: small lights that bloom somewhere on the panel and fade again.
+ *
+ * This replaced a single bar of light crossing the section left to right.
+ * That read as machinery — one object, one direction, on a fixed clock, so
+ * after two passes you were watching a loop. Scattered blooms have no
+ * direction to learn and no two on the same timing, so the eye reads
+ * atmosphere instead of a mechanism.
+ *
+ * Position, size, colour, duration and delay all come from the component,
+ * drawn once per page load, so no two visits flicker the same way. --peak
+ * is how bright that particular spark is allowed to get.
+ */
+@keyframes spark {
+  0%,
   100% {
-    transform: translateX(320%) skewX(-14deg);
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  45% {
+    opacity: var(--peak, 0.2);
+    transform: scale(1.05);
   }
 }
 
-.light-sweep {
-  animation: light-sweep 11s linear infinite;
+.spark {
+  animation: spark var(--dur, 5s) ease-in-out var(--delay, 0s) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spark {
+    animation: none;
+    opacity: calc(var(--peak, 0.2) / 2);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .drift-one,
   .drift-two,
-  .drift-three,
-  .light-sweep {
+  .drift-three {
     animation: none;
   }
 }

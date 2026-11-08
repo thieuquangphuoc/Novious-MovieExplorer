@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { discoverOneMovie, getMovieDetails, getTrailerKey } from "../services/api";
-import { QUESTIONS, SEARCH_STAGES, SEARCH_DURATION } from "../data/challenge";
+import { QUESTIONS, SEARCH_STAGES, SEARCH_DURATION, SPARKS } from "../data/challenge";
 import StarRating from "./StarRating";
 import TrailerModal from "./TrailerModal";
+import { startSearchHum, playStageBlip, playReveal, playMiss } from "../services/sound";
 
 const BACKDROP_BASE = "https://image.tmdb.org/t/p/original";
 const POSTER_BASE = "https://image.tmdb.org/t/p/w500";
@@ -11,6 +12,26 @@ const POSTER_BASE = "https://image.tmdb.org/t/p/w500";
 // every state of the right-hand column is held to this, so the panel does
 // not resize between searching and the answer
 const PANEL_HEIGHT = "min-h-[24rem]";
+
+const SOUND_KEY = "novious-challenge-sound";
+
+/*
+ * Read the saved sound preference once, as the initial state.
+ *
+ * This used to be an effect that called setSound after mount, which meant
+ * the section rendered with sound on and then corrected itself — and React
+ * rightly complains about setting state synchronously in an effect. A lazy
+ * initialiser runs once, before the first render, and never again.
+ */
+const readSoundPreference = () => {
+  try {
+    const saved = localStorage.getItem(SOUND_KEY);
+    return saved === null ? true : saved === "on";
+  } catch {
+    // private browsing can refuse storage; sound stays on
+    return true;
+  }
+};
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -65,15 +86,33 @@ const OneMovieChallenge = () => {
   const [showTrailer, setShowTrailer] = useState(false);
   const [error, setError] = useState(null);
   const [seen, setSeen] = useState([]);
+  const [sound, setSound] = useState(readSoundPreference);
+
+  const toggleSound = () => {
+    setSound((on) => {
+      const next = !on;
+      try {
+        localStorage.setItem(SOUND_KEY, next ? "on" : "off");
+      } catch {
+        // nothing to do; the setting simply will not persist
+      }
+      return next;
+    });
+  };
 
   // every timer started by a search, so none of them can fire into a
   // component that has gone away or into a search already abandoned
   const timers = useRef([]);
   const runId = useRef(0);
+  const stopHum = useRef(null);
 
   useEffect(() => {
     const pending = timers.current;
-    return () => pending.forEach(clearTimeout);
+    return () => {
+      pending.forEach(clearTimeout);
+      // a drone left running after the section unmounts would play forever
+      if (stopHum.current) stopHum.current();
+    };
   }, []);
 
   const ready = answers.time && answers.mood && answers.style;
@@ -91,11 +130,20 @@ const OneMovieChallenge = () => {
     setStage(0);
     setError(null);
 
+    if (stopHum.current) stopHum.current();
+    if (sound) {
+      // the click that got us here is the gesture browsers require
+      stopHum.current = startSearchHum(SEARCH_DURATION / 1000);
+      playStageBlip(0);
+    }
+
     SEARCH_STAGES.forEach((item, i) => {
       if (i === 0) return;
       timers.current.push(
         setTimeout(() => {
-          if (runId.current === run) setStage(i);
+          if (runId.current !== run) return;
+          setStage(i);
+          if (sound) playStageBlip(i);
         }, item.at)
       );
     });
@@ -115,6 +163,8 @@ const OneMovieChallenge = () => {
       if (runId.current !== run) return;
 
       if (!movie) {
+        if (stopHum.current) stopHum.current();
+        if (sound) playMiss();
         setError("Nothing in the catalogue matches all three answers. Try loosening one.");
         setPhase("error");
         return;
@@ -130,6 +180,9 @@ const OneMovieChallenge = () => {
       await floor;
       if (runId.current !== run) return;
 
+      if (stopHum.current) stopHum.current();
+      if (sound) playReveal();
+
       setResult({ ...movie, ...(details || {}) });
       setTrailerKey(key);
       setShowTrailer(false);
@@ -137,6 +190,8 @@ const OneMovieChallenge = () => {
       setPhase("result");
     } catch {
       if (runId.current !== run) return;
+      if (stopHum.current) stopHum.current();
+      if (sound) playMiss();
       // an error is reported the moment it happens, not after the animation
       setError("TMDB could not be reached. Check your connection and try again.");
       setPhase("error");
@@ -147,6 +202,7 @@ const OneMovieChallenge = () => {
     runId.current++;
     timers.current.forEach(clearTimeout);
     timers.current = [];
+    if (stopHum.current) stopHum.current();
     setPhase("form");
     setResult(null);
     setTrailerKey(null);
@@ -174,8 +230,24 @@ const OneMovieChallenge = () => {
         <div className="drift-two absolute right-[-10%] top-[10%] h-[24rem] w-[24rem] rounded-full bg-[#b4531a]/22 blur-[140px]" />
         <div className="drift-three absolute bottom-[-25%] left-[35%] h-[22rem] w-[22rem] rounded-full bg-[#2b4a63]/26 blur-[130px]" />
 
-        {/* the projector beam */}
-        <div className="light-sweep absolute inset-y-[-20%] -left-1/4 w-2/5 bg-gradient-to-r from-transparent via-white/[0.09] to-transparent" />
+        {/* sparks: each one blooms and fades on its own clock, in its own
+            corner, so there is no direction or rhythm to get used to */}
+        {SPARKS.map((spark) => (
+          <div
+            key={spark.id}
+            className="spark absolute rounded-full blur-2xl"
+            style={{
+              top: `${spark.top}%`,
+              left: `${spark.left}%`,
+              height: `${spark.size}rem`,
+              width: `${spark.size}rem`,
+              background: spark.tint,
+              "--peak": spark.peak,
+              "--dur": `${spark.dur}s`,
+              "--delay": `${spark.delay}s`,
+            }}
+          />
+        ))}
 
         <div className="film-grain absolute inset-0 opacity-[0.07]" />
         <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#141414] to-transparent" />
@@ -218,13 +290,40 @@ const OneMovieChallenge = () => {
               </fieldset>
             ))}
 
-            <button
-              onClick={() => search(seen)}
-              disabled={!ready || phase === "searching"}
-              className="w-full rounded-lg bg-[#E50914] px-6 py-3.5 text-sm font-semibold text-white transition duration-200 hover:bg-[#f6121d] disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-neutral-500"
-            >
-              {phase === "searching" ? "Searching…" : "Find My Movie"}
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => search(seen)}
+                disabled={!ready || phase === "searching"}
+                className="flex-1 rounded-lg bg-[#E50914] px-6 py-3.5 text-sm font-semibold text-white transition duration-200 hover:bg-[#f6121d] disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-neutral-500"
+              >
+                {phase === "searching" ? "Searching…" : "Find My Movie"}
+              </button>
+
+              <button
+                onClick={toggleSound}
+                aria-pressed={sound}
+                aria-label={sound ? "Turn search sound off" : "Turn search sound on"}
+                title={sound ? "Sound on" : "Sound off"}
+                className={`shrink-0 rounded-lg border px-3.5 transition ${
+                  sound
+                    ? "border-[#E50914]/60 bg-[#E50914]/10 text-white"
+                    : "border-white/12 bg-white/[0.03] text-neutral-500 hover:text-neutral-300"
+                }`}
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M11 5L6 9H3v6h3l5 4V5z"
+                  />
+                  {sound ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.5 8.5a5 5 0 010 7M18.5 5.5a9 9 0 010 13" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16 9l5 6M21 9l-5 6" />
+                  )}
+                </svg>
+              </button>
+            </div>
 
             {!ready && (
               <p className="-mt-3 text-xs text-neutral-500">Answer all three to unlock the search.</p>

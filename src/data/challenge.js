@@ -73,3 +73,29 @@ export const SEARCH_STAGES = [
 ];
 
 export const SEARCH_DURATION = 4800;
+
+/*
+ * The sparks drifting behind the section.
+ *
+ * Hand-placed rather than generated with Math.random, for two reasons.
+ * React treats a random call during render as impure — it would give a
+ * different answer on a re-render or a replay — and the scattered feeling
+ * does not actually come from randomness: it comes from the durations and
+ * delays never lining up. These are deliberately awkward numbers (3.7,
+ * 5.3, 6.1, 4.9...) so no two sparks pulse together, and the pattern takes
+ * minutes to repeat.
+ *
+ * top/left are percentages, size is rem, peak is the brightest the spark
+ * is allowed to get.
+ */
+export const SPARKS = [
+  { id: 1, top: 8, left: 6, size: 7, dur: 5.3, delay: 0, peak: 0.2, tint: "#ff6b6b" },
+  { id: 2, top: 62, left: 14, size: 5, dur: 3.7, delay: 1.9, peak: 0.16, tint: "#ffd9a0" },
+  { id: 3, top: 24, left: 31, size: 9, dur: 7.1, delay: 3.4, peak: 0.13, tint: "#ffffff" },
+  { id: 4, top: 78, left: 38, size: 6, dur: 4.9, delay: 0.8, peak: 0.18, tint: "#ff6b6b" },
+  { id: 5, top: 4, left: 54, size: 8, dur: 6.1, delay: 2.6, peak: 0.12, tint: "#ffd9a0" },
+  { id: 6, top: 48, left: 63, size: 5, dur: 4.3, delay: 5.2, peak: 0.22, tint: "#ffffff" },
+  { id: 7, top: 86, left: 71, size: 7, dur: 5.9, delay: 1.3, peak: 0.15, tint: "#ffd9a0" },
+  { id: 8, top: 18, left: 84, size: 6, dur: 3.9, delay: 4.1, peak: 0.19, tint: "#ff6b6b" },
+  { id: 9, top: 66, left: 91, size: 8, dur: 6.7, delay: 2.2, peak: 0.14, tint: "#ffffff" },
+];

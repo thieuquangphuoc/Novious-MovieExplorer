@@ -145,10 +145,11 @@ const Home = () => {
       {/* ===== FILM ROWS ===== */}
       
       <TrailerSection />
-      <OneMovieChallenge />
-
       <MovieMachine />
       <ScrollRow title="Top rated of all time" movies={topRated} />
+      <OneMovieChallenge />
+
+
 
       {/* Parked, not deleted. Both rows still work — ScrollRow and the
           trending endpoints are untouched — so either can come back with
