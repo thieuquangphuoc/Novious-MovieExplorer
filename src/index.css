@@ -175,3 +175,84 @@
     animation: none;
   }
 }
+
+/*
+ * ====================================================================
+ *  THE ONE MOVIE CHALLENGE
+ * ====================================================================
+ */
+
+/* A bar of light crossing the panel while the search runs. Reads as a
+   projector sweep rather than a spinner, and it is the only moving part,
+   so the panel stays calm. */
+@keyframes challenge-scan {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(220%);
+  }
+}
+
+.challenge-scan {
+  animation: challenge-scan 2.1s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+/* Each stage of the search replaces the last, rising as it arrives. */
+@keyframes challenge-stage {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.challenge-stage {
+  animation: challenge-stage 500ms ease-out both;
+}
+
+/* The reveal: the backdrop settles out of a slow push-in, then the poster
+   and the words arrive one after another. Delays are set inline per
+   element, which is what staggers them. */
+@keyframes challenge-backdrop {
+  from {
+    opacity: 0;
+    transform: scale(1.08);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.challenge-backdrop {
+  animation: challenge-backdrop 1400ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes challenge-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.challenge-rise {
+  animation: challenge-rise 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .challenge-scan,
+  .challenge-stage,
+  .challenge-backdrop,
+  .challenge-rise {
+    animation-duration: 1ms;
+    animation-iteration-count: 1;
+  }
+}

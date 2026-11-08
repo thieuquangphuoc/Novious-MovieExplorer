@@ -214,6 +214,73 @@ export const getHeroMovies = async (count = 10) => {
     .slice(0, count);
 };
 
+/*
+ * One film for The ONE Movie Challenge.
+ *
+ * Everything the questionnaire asks becomes a /discover filter, so the
+ * answer really is drawn from films that match — not a popular title with
+ * a label stuck on it afterwards.
+ *
+ * Genre ids are joined with a pipe, not a comma: a comma means AND, which
+ * for Thrilled would demand a film that is Thriller *and* Action and throw
+ * away three quarters of the catalogue.
+ *
+ * `safe` is the Play It Safe / Surprise Me switch. Safe asks for films with
+ * a large audience behind them and sorts by popularity. Surprise narrows to
+ * a band of modest vote counts — enough that the score means something, few
+ * enough that the film is not famous — and sorts by rating instead.
+ *
+ * That band starts at 150 rather than a few dozen. Lower down it fills with
+ * shorts and direct-to-video oddities that technically carry the right
+ * genre and a flattering average from a handful of votes; the point of
+ * Surprise Me is an overlooked film, not an obscure one.
+ *
+ * A random page is picked so that asking twice does not return the same
+ * twenty films, and `exclude` drops anything already shown in this session.
+ */
+export const discoverOneMovie = async ({ genres, maxRuntime, safe, exclude = [] }) => {
+  const parts = [
+    `${BASE}/discover/movie?api_key=${KEY}`,
+    "&include_adult=false&vote_average.gte=6.8",
+    genres.length ? `&with_genres=${genres.join("%7C")}` : "",
+    maxRuntime ? `&with_runtime.lte=${maxRuntime}` : "",
+    safe
+      ? "&vote_count.gte=800&sort_by=popularity.desc"
+      : "&vote_count.gte=150&vote_count.lte=1500&sort_by=vote_average.desc",
+  ];
+  const query = parts.join("");
+
+  try {
+    const first = await fetch(`${query}&page=1`);
+    if (!first.ok) throw new Error(first.status);
+    const head = await first.json();
+
+    if (head.total_results === 0) return null;
+
+    // stay inside the pages worth reading; past five the quality falls away
+    const lastPage = Math.min(head.total_pages, 5);
+    const page = 1 + Math.floor(Math.random() * lastPage);
+
+    let pool = head.results;
+    if (page !== 1) {
+      const res = await fetch(`${query}&page=${page}`);
+      if (!res.ok) throw new Error(res.status);
+      pool = (await res.json()).results;
+    }
+
+    const usable = pool.filter(
+      (movie) => movie.backdrop_path && movie.poster_path && !exclude.includes(movie.id)
+    );
+    const choices = usable.length > 0 ? usable : pool.filter((movie) => movie.poster_path);
+    if (choices.length === 0) return null;
+
+    return choices[Math.floor(Math.random() * choices.length)];
+  } catch (error) {
+    console.log("discoverOneMovie error:", error);
+    throw error;
+  }
+};
+
 export const getGenres = async () => {
   try {
     const res = await fetch(`${BASE}/genre/movie/list?api_key=${KEY}`);

@@ -3,6 +3,7 @@ import { getHeroMovies, getTopRated } from "../services/api";
 import Hero from "../components/Hero";
 import ScrollRow from "../components/ScrollRow";
 import MovieMachine from "../components/MovieMachine";
+import OneMovieChallenge from "../components/OneMovieChallenge";
 import TrailerSection from "../components/TrailerSection";
 
 const SLIDE_MS = 4000;    // auto-advance every 4 seconds
@@ -144,6 +145,8 @@ const Home = () => {
       {/* ===== FILM ROWS ===== */}
       
       <TrailerSection />
+      <OneMovieChallenge />
+
       <MovieMachine />
       <ScrollRow title="Top rated of all time" movies={topRated} />
 
