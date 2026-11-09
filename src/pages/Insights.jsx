@@ -1,268 +1,224 @@
 import { useState, useEffect } from "react";
 import {
-  PieChart, Pie, Cell, BarChart, Bar, ScatterChart, Scatter,
-  XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-} from "recharts";
-import { getTrending, getGenres } from "../services/api";
-import InsightSection from "../components/InsightSection";
+  loadInsightDataset,
+  headlineStats,
+  genresInSet,
+} from "../services/insights";
 import CountUp from "../components/CountUp";
+import Reveal from "../components/insights/Reveal";
+import SuccessMatrix from "../components/insights/SuccessMatrix";
+import BoxOfficeDNA from "../components/insights/BoxOfficeDNA";
+import HiddenGems from "../components/insights/HiddenGems";
+import GenreWars from "../components/insights/GenreWars";
 
-const COLORS = ["#E50914", "#b81d24", "#f5c518", "#4a9eff", "#46d369", "#9b59b6"];
+/*
+ * CINEMA DECODED
+ *
+ * The page is built as an article rather than a dashboard. There are no
+ * cards: sections are separated by a hairline and a lot of space, each
+ * one is numbered, each one asks a question in its heading and answers it
+ * in a caption written from the data underneath it. Charts are different
+ * sizes because they carry different weight — the two that need room get
+ * the full width, the section that is really about the films themselves
+ * is posters rather than a plot.
+ *
+ * Every number on the page, including the ones in the prose, is computed
+ * from the dataset at render time. Nothing is written down by hand, so
+ * nothing can quietly go stale.
+ *
+ * The whole page shares one dataset, built once and cached in
+ * services/insights.js. It costs eighty-odd requests to assemble, because
+ * budget, revenue, runtime and country only exist on TMDB's per-film
+ * endpoint — so it is paid for once per session, not once per chart.
+ */
 
-function Insights() {
-  const [movies, setMovies] = useState([]);
-  const [genres, setGenres] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [timeWindow, setTimeWindow] = useState("week");   
+const Section = ({ number, kicker, title, children }) => (
+  <section className="rule-top py-16 sm:py-20">
+    <Reveal>
+      <p className="tick mb-3 text-[11px] uppercase tracking-[0.3em] text-neutral-500">
+        {number} — {kicker}
+      </p>
+      <h2 className="mb-8 max-w-3xl text-2xl font-bold leading-tight text-white sm:text-4xl">
+        {title}
+      </h2>
+    </Reveal>
 
+    <Reveal delay={80}>{children}</Reveal>
+  </section>
+);
+
+const Stat = ({ value, label, wide = false }) => (
+  <div className={wide ? "sm:col-span-2" : ""}>
+    <p className="text-3xl font-bold tabular-nums text-white sm:text-4xl">{value}</p>
+    <p className="mt-1 text-[11px] uppercase tracking-[0.2em] text-neutral-500">{label}</p>
+  </div>
+);
+
+/* A page-shaped placeholder, so the layout does not jump when data lands. */
+const Skeleton = () => (
+  <div className="mx-auto max-w-7xl px-4 pb-24 pt-32 sm:px-6 lg:px-8">
+    <div className="decoded-skeleton h-4 w-40" />
+    <div className="decoded-skeleton mt-6 h-16 w-full max-w-2xl" />
+    <div className="decoded-skeleton mt-3 h-5 w-full max-w-md" />
+
+    <div className="mt-14 grid grid-cols-2 gap-8 sm:grid-cols-4">
+      {[0, 1, 2, 3].map((i) => (
+        <div key={i}>
+          <div className="decoded-skeleton h-9 w-24" />
+          <div className="decoded-skeleton mt-2 h-3 w-20" />
+        </div>
+      ))}
+    </div>
+
+    <div className="decoded-skeleton mt-20 h-[26rem] w-full" />
+    <p className="mt-6 text-xs uppercase tracking-[0.25em] text-neutral-600">
+      Reading {" "}
+      <span className="text-neutral-400">budgets, grosses and ballots</span> from TMDB…
+    </p>
+  </div>
+);
+
+const Insights = () => {
+  const [data, setData] = useState(null);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
-    const load = async () => {
-      setLoading(true);                                   
-      // two independent requests -> run them in parallel
-      const [movieList, genreList] = await Promise.all([getTrending(timeWindow), getGenres()]);
-      setMovies(movieList);
-      setGenres(genreList);
-      setLoading(false);
+    let cancelled = false;
+
+    loadInsightDataset()
+      .then((result) => {
+        if (!cancelled) setData(result);
+      })
+      .catch(() => {
+        if (!cancelled) setFailed(true);
+      });
+
+    return () => {
+      cancelled = true;
     };
-    load();
-  }, [timeWindow]);
+  }, []);
 
-  if (loading) {
-    return <div className="flex min-h-screen items-center justify-center bg-[#141414] text-neutral-400">Analysing data...</div>;
-  }
-  if (movies.length === 0) {
-    return <div className="flex min-h-screen items-center justify-center bg-[#141414] text-neutral-400">No data available.</div>;
-  }
-
-  /* ---------- TÍNH TOÁN ---------- */
-
-  // A. count the genres
-  const counts = {};
-  movies.forEach((m) => {
-    m.genre_ids?.forEach((id) => {
-      const name = genres.find((g) => g.id === id)?.name;
-      if (name) counts[name] = (counts[name] || 0) + 1;
-    });
-  });
-  const genreData = Object.entries(counts)
-    .map(([name, value]) => ({ name, value }))
-    .sort((a, b) => b.value - a.value)
-    .slice(0, 6);
-  const totalTags = genreData.reduce((sum, g) => sum + g.value, 0);
-  const topGenre = genreData[0];
-  const topPct = Math.round((topGenre.value / totalTags) * 100);
-
-  // B. rating vs popularity
-  const scatterData = movies.map((m) => ({
-    rating: Number(m.vote_average.toFixed(1)),
-    popularity: Math.round(m.popularity),
-    votes: m.vote_count,
-    title: m.title,
-  }));
-  const avgRating = (movies.reduce((s, m) => s + m.vote_average, 0) / movies.length).toFixed(1);
-  const avgPop = movies.reduce((s, m) => s + m.popularity, 0) / movies.length;
-  const hyped = [...movies].sort((a, b) => b.popularity - a.popularity)[0];
-  const hiddenGems = movies.filter((m) => m.vote_average >= 7.5 && m.popularity < avgPop);
-
-  // C. rating distribution
-  const buckets = [
-    { range: "< 6",   count: movies.filter((m) => m.vote_average < 6).length },
-    { range: "6 – 7", count: movies.filter((m) => m.vote_average >= 6 && m.vote_average < 7).length },
-    { range: "7 – 8", count: movies.filter((m) => m.vote_average >= 7 && m.vote_average < 8).length },
-    { range: "8 +",   count: movies.filter((m) => m.vote_average >= 8).length },
-  ];
-  const best = [...movies].sort((a, b) => b.vote_average - a.vote_average)[0];
-  const goodCount = movies.filter((m) => m.vote_average >= 7).length;
-  const goodPct = Math.round((goodCount / movies.length) * 100);
-
-  const tooltipStyle = {
-    backgroundColor: "#1c1c1c",
-    border: "1px solid #333",
-    borderRadius: 6,
-    color: "#fff",
-    fontSize: 12,
-  };
-
-  const ScatterTip = ({ active, payload }) => {
-    if (!active || !payload?.length) return null;
-    const d = payload[0].payload;
+  if (failed) {
     return (
-      <div style={{ ...tooltipStyle, padding: "8px 10px" }}>
-        <p style={{ fontWeight: 700 }}>{d.title}</p>
-        <p>★ {d.rating} · popularity {d.popularity}</p>
+      <div className="mx-auto flex min-h-[70vh] max-w-xl flex-col items-center justify-center px-4 text-center">
+        <p className="text-[11px] uppercase tracking-[0.3em] text-[#E50914]">
+          No signal
+        </p>
+        <h1 className="mt-3 text-2xl font-bold text-white">The archive would not open</h1>
+        <p className="mt-3 text-sm leading-relaxed text-neutral-400">
+          This page reads every figure live from TMDB, so with the connection down there
+          is nothing honest to show. Reload once you are back online — nothing here is
+          stored or invented.
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-7 border border-neutral-500 px-6 py-2.5 text-sm font-semibold text-white transition hover:border-white hover:bg-white/10"
+        >
+          Try again
+        </button>
       </div>
     );
-  };
+  }
+
+  if (!data) return <Skeleton />;
+
+  const { movies } = data;
+  const stats = headlineStats(movies);
+  const genres = genresInSet(movies);
 
   return (
-    <div className="bg-[#141414]">
-
-      {/* ===== HERO ===== */}
-      <section className="border-b border-neutral-800 px-4 py-24 text-center sm:px-6 lg:px-8">
-        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.3em] text-[#E50914]">Data Lab</p>
-        <h1 className="mx-auto mb-5 max-w-3xl text-4xl font-extrabold text-white sm:text-5xl">
-          What is the world <span className="text-[#E50914]">actually</span> watching?
-        </h1>
-        <p className="mx-auto mb-14 max-w-xl text-neutral-400">
-          Live analysis of this week's trending films on TMDB.
+    <div className="mx-auto max-w-7xl px-4 pb-24 pt-32 sm:px-6 lg:px-8">
+      {/* ===== MASTHEAD ===== */}
+      <Reveal>
+        <p className="text-[11px] uppercase tracking-[0.35em] text-[#E50914]">
+          Novious Intelligence
         </p>
 
-        <div className="mb-12 inline-flex rounded-full border border-neutral-700 p-1">
-        {["day", "week"].map((w) => (
-            <button
-            key={w}
-            onClick={() => setTimeWindow(w)}
-            className={`rounded-full px-6 py-2 text-sm font-medium transition-colors ${
-                timeWindow === w ? "bg-[#E50914] text-white" : "text-neutral-400 hover:text-white"
-            }`}
-            >
-            {w === "day" ? "Today" : "This week"}
-            </button>
-        ))}
+        <h1 className="mt-4 text-5xl font-bold leading-[0.95] tracking-tight text-white sm:text-7xl lg:text-8xl">
+          CINEMA
+          <br />
+          <span className="text-neutral-600">DECODED</span>
+        </h1>
+
+        <p className="mt-6 max-w-xl text-base leading-relaxed text-neutral-400">
+          The stories behind the numbers. {stats.filmCount} films from{" "}
+          {stats.earliestYear} to {stats.latestYear}, read live from TMDB — what they
+          cost, what they took, who turned up, and what that is worth knowing.
+        </p>
+      </Reveal>
+
+      {/* ===== HEADLINE FIGURES ===== */}
+      <Reveal delay={120}>
+        <div className="mt-14 grid grid-cols-2 gap-x-8 gap-y-10 border-t border-white/10 pt-10 sm:grid-cols-4">
+          <Stat value={<CountUp end={stats.filmCount} duration={1.4} />} label="Films read" />
+          <Stat
+            value={<CountUp end={stats.averageRating} decimals={1} duration={1.6} />}
+            label="Mean score"
+          />
+          <Stat
+            value={
+              <>
+                $<CountUp end={stats.grossTotalBillions} decimals={1} duration={1.8} />B
+              </>
+            }
+            label="Combined gross"
+          />
+          <Stat
+            value={<CountUp end={stats.medianRuntime} duration={1.5} suffix=" min" />}
+            label="Median runtime"
+          />
         </div>
 
-        <div className="mx-auto grid max-w-4xl grid-cols-2 gap-6 md:grid-cols-4">
-        <div>
-            <p className="text-3xl font-bold text-white">
-            <CountUp end={movies.length} duration={1.5} />
-            </p>
-            <p className="mt-1 text-xs uppercase tracking-wide text-neutral-500">Films analysed</p>
-        </div>
-        <div>
-            <p className="text-3xl font-bold text-white">
-            ★ <CountUp end={Number(avgRating)} decimals={1} duration={1.8} />
-            </p>
-            <p className="mt-1 text-xs uppercase tracking-wide text-neutral-500">Average rating</p>
-        </div>
-        <div>
-            <p className="text-3xl font-bold text-white">{topGenre.name}</p>
-            <p className="mt-1 text-xs uppercase tracking-wide text-neutral-500">Top genre</p>
-        </div>
-        <div>
-            <p className="text-3xl font-bold text-white">
-            <CountUp end={goodPct} duration={2} suffix="%" />
-            </p>
-            <p className="mt-1 text-xs uppercase tracking-wide text-neutral-500">Rated 7+</p>
-        </div>
-        </div>
-      </section>
+        <p className="mt-5 text-xs leading-relaxed text-neutral-600">
+          TMDB holds box-office figures for {stats.moneyCoverage}% of these films. The
+          rest are absent from the money charts rather than counted as zero — an empty
+          field means nobody has filled it in, not that a film earned nothing.
+        </p>
+      </Reveal>
 
-      {/* ===== 1: chart LEFT / text RIGHT, standard background ===== */}
-      <InsightSection
-        kicker="Genre breakdown"
-        title={`${topGenre.name} dominates this week`}
-        text={
-          <>
-            <p>
-              Across the {movies.length} trending films, <strong className="text-white">{topGenre.name}</strong>{" "}
-              appears {topGenre.value} times — about <strong className="text-white">{topPct}%</strong> of all
-              genre tags.
-            </p>
-            <p>
-              Films carry multiple genres, so the total exceeds the film count. The spread shows how narrow
-              global taste currently is: the top three genres alone make up{" "}
-              {Math.round(((genreData[0].value + (genreData[1]?.value || 0) + (genreData[2]?.value || 0)) / totalTags) * 100)}%
-              of everything trending.
-            </p>
-          </>
-        }
+      {/* ===== 01 ===== */}
+      <Section
+        number="01"
+        kicker="The Success Matrix"
+        title="Does being good pay? Score against worldwide gross, one dot per film."
       >
-        <ResponsiveContainer width="100%" height={320}>
-          <PieChart>
-            <Pie data={genreData} dataKey="value" nameKey="name" innerRadius={70} outerRadius={115} paddingAngle={2} animationDuration={1000} animationBegin={200}>
-              {genreData.map((entry, i) => (
-                <Cell key={entry.name} fill={COLORS[i % COLORS.length]} stroke="#141414" strokeWidth={3} />
-              ))}
-            </Pie>
-            <Tooltip contentStyle={tooltipStyle} />
-          </PieChart>
-        </ResponsiveContainer>
-        <div className="mt-4 flex flex-wrap justify-center gap-x-5 gap-y-2">
-          {genreData.map((g, i) => (
-            <span key={g.name} className="flex items-center gap-2 text-xs text-neutral-400">
-              <span className="h-2.5 w-2.5 rounded-sm" style={{ background: COLORS[i % COLORS.length] }} />
-              {g.name}
-            </span>
-          ))}
-        </div>
-      </InsightSection>
+        <SuccessMatrix movies={movies} genres={genres} />
+      </Section>
 
-      {/* ===== 2: chart RIGHT / text LEFT, darker background ===== */}
-      <InsightSection
-        reverse
-        dark
-        kicker="Hype vs quality"
-        title="Being popular is not the same as being good"
-        text={
-          <>
-            <p>
-              Each bubble is a film: horizontal = audience rating, vertical = TMDB popularity, size = number
-              of votes.
-            </p>
-            <p>
-              The most hyped title right now is{" "}
-              <strong className="text-white">{hyped.title}</strong> (popularity {Math.round(hyped.popularity)},
-              rated ★ {hyped.vote_average.toFixed(1)}) — {hyped.vote_average >= avgRating
-                ? "and it holds up, scoring above the weekly average."
-                : `yet it sits below the weekly average of ★ ${avgRating}.`}
-            </p>
-            <p>
-              {hiddenGems.length > 0
-                ? `${hiddenGems.length} film${hiddenGems.length > 1 ? "s" : ""} score ★ 7.5 or higher while staying below average popularity — the quiet picks worth finding.`
-                : "This week every highly rated film is also widely watched."}
-            </p>
-          </>
-        }
+      {/* ===== 02 ===== */}
+      <Section
+        number="02"
+        kicker="Box Office DNA"
+        title="What it cost against what it took — and the line where a film starts earning."
       >
-        <ResponsiveContainer width="100%" height={320}>
-          <ScatterChart margin={{ top: 10, right: 20, bottom: 20, left: 0 }}>
-            <CartesianGrid stroke="#2a2a2a" />
-            <XAxis type="number" dataKey="rating" name="Rating" domain={[0, 10]}
-              stroke="#8c8c8c" tick={{ fontSize: 11 }}
-              label={{ value: "Rating", position: "insideBottom", offset: -10, fill: "#8c8c8c", fontSize: 11 }} />
-            <YAxis type="number" dataKey="popularity" name="Popularity"
-              stroke="#8c8c8c" tick={{ fontSize: 11 }} />
-            <ZAxis type="number" dataKey="votes" range={[60, 500]} />
-            <Tooltip content={<ScatterTip />} cursor={{ strokeDasharray: "3 3" }} />
-            <Scatter data={scatterData} fill="#E50914" fillOpacity={0.65} animationDuration={1500} />
-          </ScatterChart>
-        </ResponsiveContainer>
-      </InsightSection>
+        <BoxOfficeDNA movies={movies} />
+      </Section>
 
-      {/* ===== 3: chart LEFT / text RIGHT, standard background ===== */}
-      <InsightSection
-        kicker="Rating distribution"
-        title={`${goodPct}% of trending films score 7 or above`}
-        text={
-          <>
-            <p>
-              Ratings cluster tightly: {buckets[2].count + buckets[3].count} of {movies.length} films sit at
-              ★ 7 or higher, and only {buckets[0].count} fall below ★ 6.
-            </p>
-            <p>
-              The highest rated this week is <strong className="text-white">{best.title}</strong> at ★{" "}
-              {best.vote_average.toFixed(1)} from {best.vote_count.toLocaleString()} votes.
-            </p>
-            <p className="text-sm text-neutral-500">
-              Note: trending lists are self-selecting — films already reach them by being watched and liked,
-              so this distribution is skewed upward and is not representative of all cinema.
-            </p>
-          </>
-        }
+      {/* ===== 03 ===== */}
+      <Section
+        number="03"
+        kicker="Hidden Gems"
+        title="Rated as highly as the classics, watched by almost nobody."
       >
-        <ResponsiveContainer width="100%" height={320}>
-          <BarChart data={buckets} margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
-            <CartesianGrid stroke="#2a2a2a" vertical={false} />
-            <XAxis dataKey="range" stroke="#8c8c8c" tick={{ fontSize: 12 }} />
-            <YAxis allowDecimals={false} stroke="#8c8c8c" tick={{ fontSize: 12 }} />
-            <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "#ffffff0d" }} />
-            <Bar dataKey="count" fill="#E50914" radius={[4, 4, 0, 0]} animationDuration={1200} animationEasing="ease-out" />
-          </BarChart>
-        </ResponsiveContainer>
-      </InsightSection>
+        <HiddenGems movies={movies} />
+      </Section>
+
+      {/* ===== 04 ===== */}
+      <Section
+        number="04"
+        kicker="Genre Wars"
+        title="What each decade was making, as a share of everything it labelled."
+      >
+        <GenreWars movies={movies} genres={genres} />
+      </Section>
+
+      <p className="rule-top pt-8 text-xs leading-relaxed text-neutral-600">
+        Every figure on this page is computed from the {stats.filmCount} films above at
+        the moment you loaded it. Nothing is stored, rounded in advance or written by
+        hand, so the prose and the charts cannot disagree. Data from TMDB.
+      </p>
     </div>
   );
-}
+};
 
 export default Insights;
