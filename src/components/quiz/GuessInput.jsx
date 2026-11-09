@@ -1,0 +1,212 @@
+import { useState, useEffect, useRef } from "react";
+import { searchMovies } from "../../services/api";
+
+const POSTER_BASE = "https://image.tmdb.org/t/p/w92";
+const MAX_SUGGESTIONS = 6;
+const DEBOUNCE_MS = 300;
+
+/*
+ * The guess box, with autocomplete over the whole of TMDB.
+ *
+ * Guesses are compared by TMDB id, never by the text typed. Titles are a
+ * minefield — "Se7en" against "Seven", accents, subtitles, re-releases —
+ * and a game that rejects a correct answer over punctuation is broken.
+ * Picking from the list is therefore required: the Submit button stays
+ * disabled until a film has been chosen.
+ *
+ * The search is debounced. Without it every keystroke is a request, so
+ * typing one title fires a dozen and the answers arrive out of order.
+ * The `cancelled` flag covers the rest: a slow early reply must not
+ * overwrite the list for what is now in the box.
+ *
+ * Nothing here knows the answer, so the suggestions cannot leak it.
+ */
+const GuessInput = ({ onGuess, disabled, attemptsLeft, danger }) => {
+  const [text, setText] = useState("");
+  const [options, setOptions] = useState([]);
+  const [chosen, setChosen] = useState(null);
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(0);
+  const [searching, setSearching] = useState(false);
+
+  const boxRef = useRef(null);
+
+  useEffect(() => {
+    // nothing to search for yet; the list is hidden by `suggestions`
+    // below rather than cleared here, because clearing state straight
+    // from an effect body is what triggers a cascading render
+    if (chosen || text.trim().length < 2) return undefined;
+
+    let cancelled = false;
+
+    const timer = setTimeout(async () => {
+      setSearching(true);
+      const results = await searchMovies(text.trim());
+      if (cancelled) return;
+
+      setOptions(results.filter((m) => m.release_date).slice(0, MAX_SUGGESTIONS));
+      setActive(0);
+      setOpen(true);
+      setSearching(false);
+    }, DEBOUNCE_MS);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [text, chosen]);
+
+  // a click anywhere else closes the list
+  useEffect(() => {
+    const onDocumentClick = (event) => {
+      if (boxRef.current && !boxRef.current.contains(event.target)) setOpen(false);
+    };
+    document.addEventListener("mousedown", onDocumentClick);
+    return () => document.removeEventListener("mousedown", onDocumentClick);
+  }, []);
+
+  /*
+   * What the list actually shows. Derived instead of stored, so a query
+   * too short to search cannot leave yesterday's suggestions on screen.
+   */
+  const suggestions = !chosen && text.trim().length >= 2 ? options : [];
+
+  const choose = (movie) => {
+    setChosen(movie);
+    setText(movie.title);
+    setOpen(false);
+  };
+
+  const reset = () => {
+    setChosen(null);
+    setText("");
+    setOptions([]);
+  };
+
+  const submit = (event) => {
+    event.preventDefault();
+    if (!chosen || disabled) return;
+    onGuess(chosen);
+    reset();
+  };
+
+  const onKeyDown = (event) => {
+    if (!open || suggestions.length === 0) return;
+
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setActive((i) => (i + 1) % suggestions.length);
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setActive((i) => (i - 1 + suggestions.length) % suggestions.length);
+    } else if (event.key === "Enter") {
+      event.preventDefault();
+      choose(suggestions[active]);
+    } else if (event.key === "Escape") {
+      setOpen(false);
+    }
+  };
+
+  return (
+    <form onSubmit={submit} className="relative" ref={boxRef}>
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <div className="relative flex-1">
+          <input
+            value={text}
+            disabled={disabled}
+            onChange={(event) => {
+              setText(event.target.value);
+              setChosen(null);
+            }}
+            onKeyDown={onKeyDown}
+            onFocus={() => suggestions.length > 0 && setOpen(true)}
+            placeholder="Name the film…"
+            aria-label="Type a film title and pick it from the list"
+            autoComplete="off"
+            className={`w-full border bg-[#161616] px-4 py-3 pr-10 text-white placeholder-neutral-500 outline-none transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+              chosen
+                ? "border-[#E50914]"
+                : danger
+                  ? "frame-danger border-[#E50914]/60"
+                  : "border-white/15 focus:border-white/40"
+            }`}
+          />
+
+          {text && !disabled && (
+            <button
+              type="button"
+              onClick={reset}
+              aria-label="Clear the guess"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-neutral-500 transition-colors hover:text-white"
+            >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+        </div>
+
+        <button
+          type="submit"
+          disabled={!chosen || disabled}
+          className="shrink-0 bg-[#E50914] px-6 py-3 text-sm font-semibold text-white transition duration-200 hover:bg-[#f6121d] disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-neutral-500"
+        >
+          Submit guess
+        </button>
+      </div>
+
+      {!chosen && text.trim().length >= 2 && !disabled && (
+        <p className="mt-2 text-xs text-neutral-600">
+          {searching ? "Searching…" : "Pick a film from the list to submit."}
+        </p>
+      )}
+
+      {chosen && !disabled && (
+        <p className="mt-2 text-xs text-neutral-500">
+          {attemptsLeft} guess{attemptsLeft === 1 ? "" : "es"} left.
+        </p>
+      )}
+
+      {open && suggestions.length > 0 && !disabled && (
+        <ul
+          role="listbox"
+          className="absolute left-0 right-0 top-full z-30 mt-1 max-h-80 overflow-y-auto border border-white/15 bg-[#0d0d0d] shadow-2xl shadow-black/70"
+        >
+          {suggestions.map((movie, index) => (
+            <li key={movie.id}>
+              <button
+                type="button"
+                role="option"
+                aria-selected={index === active}
+                onMouseEnter={() => setActive(index)}
+                onClick={() => choose(movie)}
+                className={`flex w-full items-center gap-3 px-3 py-2 text-left transition-colors ${
+                  index === active ? "bg-white/10" : "hover:bg-white/5"
+                }`}
+              >
+                {movie.poster_path ? (
+                  <img
+                    src={`${POSTER_BASE}${movie.poster_path}`}
+                    alt=""
+                    className="h-12 w-8 shrink-0 object-cover"
+                  />
+                ) : (
+                  <span className="h-12 w-8 shrink-0 bg-white/5" />
+                )}
+
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm text-white">{movie.title}</span>
+                  <span className="block text-xs text-neutral-500">
+                    {movie.release_date.slice(0, 4)}
+                  </span>
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </form>
+  );
+};
+
+export default GuessInput;

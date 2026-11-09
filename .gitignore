@@ -12,6 +12,8 @@ dist
 dist-ssr
 .env.local
 docs/PROJECT.md
+docs/READ.md
+docs
 .claude
 CLAUDE.MD
 

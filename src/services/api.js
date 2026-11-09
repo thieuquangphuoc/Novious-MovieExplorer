@@ -302,6 +302,7 @@ export const discoverMovies = async ({
   yearFrom = null,
   yearTo = null,
   minRating = 0,
+  minVotes = null,
   sortBy = "popularity.desc",
   page = 1,
 } = {}) => {
@@ -313,7 +314,11 @@ export const discoverMovies = async ({
     yearFrom ? `&primary_release_date.gte=${yearFrom}-01-01` : "",
     yearTo ? `&primary_release_date.lte=${yearTo}-12-31` : "",
     minRating > 0 ? `&vote_average.gte=${minRating}` : "",
-    sortBy.startsWith("vote_average") ? "&vote_count.gte=300" : "&vote_count.gte=20",
+    minVotes
+      ? `&vote_count.gte=${minVotes}`
+      : sortBy.startsWith("vote_average")
+        ? "&vote_count.gte=300"
+        : "&vote_count.gte=20",
   ];
 
   try {

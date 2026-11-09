@@ -188,3 +188,150 @@ export const playMiss = () => {
   tone({ ac, type: "triangle", freq: 330, start: now, duration: 0.25, peak: 0.06 });
   tone({ ac, type: "triangle", freq: 220, start: now + 0.16, duration: 0.5, peak: 0.06 });
 };
+
+/* ====================================================================
+ *  FRAME BY FRAME
+ *  Cues for the guessing game. Same approach as above: synthesised,
+ *  no files, nothing to download or license.
+ * ==================================================================== */
+
+/*
+ * A burst of filtered noise, which is what a whoosh actually is.
+ *
+ * Oscillators cannot make this — noise has no pitch. The buffer is
+ * filled with random samples once per call and pushed through a
+ * band-pass filter whose centre frequency sweeps, so the hiss appears to
+ * travel past the listener rather than just fading.
+ */
+const noiseBuffer = (ac, seconds) => {
+  const frames = Math.floor(ac.sampleRate * seconds);
+  const buffer = ac.createBuffer(1, frames, ac.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < frames; i++) data[i] = Math.random() * 2 - 1;
+  return buffer;
+};
+
+// A soft click for buttons. Short enough to feel like a response, not a note.
+export const playClick = () => {
+  const ac = getContext();
+  if (!ac) return;
+  tone({ ac, type: "sine", freq: 880, start: ac.currentTime, duration: 0.06, peak: 0.05 });
+};
+
+// Reveal Hint: air moving as a panel slides away.
+export const playWhoosh = () => {
+  const ac = getContext();
+  if (!ac) return;
+
+  const now = ac.currentTime;
+  const source = ac.createBufferSource();
+  const filter = ac.createBiquadFilter();
+  const gain = ac.createGain();
+
+  source.buffer = noiseBuffer(ac, 0.7);
+
+  filter.type = "bandpass";
+  filter.Q.value = 1.1;
+  filter.frequency.setValueAtTime(380, now);
+  filter.frequency.exponentialRampToValueAtTime(2600, now + 0.34);
+  filter.frequency.exponentialRampToValueAtTime(420, now + 0.68);
+
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(level(0.09), now + 0.1);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.68);
+
+  source.connect(filter).connect(gain).connect(ac.destination);
+  source.start(now);
+  source.stop(now + 0.72);
+};
+
+/*
+ * Wrong answer: a low hit that drops in pitch.
+ *
+ * The falling pitch is what makes it read as a refusal — the same note
+ * held flat sounds like a drum, not a "no".
+ */
+export const playWrong = () => {
+  const ac = getContext();
+  if (!ac) return;
+
+  const now = ac.currentTime;
+  tone({ ac, type: "sine", freq: 150, glideTo: 55, start: now, duration: 0.55, peak: 0.14 });
+  tone({ ac, type: "triangle", freq: 98, glideTo: 62, start: now, duration: 0.35, peak: 0.06 });
+};
+
+// Correct answer: a bright rising third, over quickly.
+export const playCorrect = () => {
+  const ac = getContext();
+  if (!ac) return;
+
+  const now = ac.currentTime;
+  [784, 988, 1319].forEach((freq, i) => {
+    tone({ ac, type: "sine", freq, start: now + i * 0.07, duration: 0.6, peak: 0.07 });
+  });
+};
+
+/*
+ * The reveal: a cinematic hit.
+ *
+ * Three layers, because one oscillator cannot sound big — a sub drop for
+ * the chest, a mid swell for the body, and a noise burst for the air.
+ */
+export const playImpact = () => {
+  const ac = getContext();
+  if (!ac) return;
+
+  const now = ac.currentTime;
+
+  tone({ ac, type: "sine", freq: 110, glideTo: 36, start: now, duration: 1.8, peak: 0.16 });
+  tone({ ac, type: "sawtooth", freq: 220, glideTo: 110, start: now, duration: 1.1, peak: 0.05 });
+
+  const source = ac.createBufferSource();
+  const filter = ac.createBiquadFilter();
+  const gain = ac.createGain();
+
+  source.buffer = noiseBuffer(ac, 1.2);
+  filter.type = "lowpass";
+  filter.frequency.setValueAtTime(5200, now);
+  filter.frequency.exponentialRampToValueAtTime(380, now + 1.0);
+
+  gain.gain.setValueAtTime(level(0.08), now);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.1);
+
+  source.connect(filter).connect(gain).connect(ac.destination);
+  source.start(now);
+  source.stop(now + 1.2);
+};
+
+/*
+ * The heartbeat under the final guess.
+ *
+ * Two thumps per beat, the second softer, which is what makes it read as
+ * a heart rather than a metronome. It is scheduled with setInterval and
+ * returns its own stop function, because a heartbeat left running after
+ * the round ends would be far worse than no heartbeat at all — every
+ * caller must hold on to this and call it.
+ */
+export const startHeartbeat = () => {
+  const ac = getContext();
+  if (!ac) return () => {};
+
+  const thump = (at, peak) =>
+    tone({ ac, type: "sine", freq: 62, glideTo: 40, start: at, duration: 0.3, peak });
+
+  const beat = () => {
+    const now = ac.currentTime;
+    thump(now, 0.1);
+    thump(now + 0.26, 0.06);
+  };
+
+  beat();
+  const timer = setInterval(beat, 1150);
+
+  let stopped = false;
+  return () => {
+    if (stopped) return;
+    stopped = true;
+    clearInterval(timer);
+  };
+};

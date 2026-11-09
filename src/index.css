@@ -536,3 +536,59 @@
   background: #161616;
   color: #e5e5e5;
 }
+
+/*
+ * ====================================================================
+ *  FRAME BY FRAME
+ * ====================================================================
+ */
+
+/*
+ * The six tiles covering the still.
+ *
+ * Each one fades and lifts away rather than simply vanishing, so the
+ * picture feels uncovered rather than switched on. The delay is set per
+ * tile from the component, which is what makes the final reveal sweep
+ * across instead of opening all six at once.
+ */
+.frame-tile {
+  transition: opacity 650ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 650ms cubic-bezier(0.16, 1, 0.3, 1),
+    filter 650ms ease;
+}
+
+.frame-tile.is-open {
+  opacity: 0;
+  transform: scale(1.06);
+  pointer-events: none;
+}
+
+/*
+ * The pulse under the last guess.
+ *
+ * Paired with the heartbeat sound, so the warning arrives through two
+ * senses at once. Slow enough to raise tension rather than nag.
+ */
+@keyframes frame-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(229, 9, 20, 0);
+  }
+  50% {
+    box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.35);
+  }
+}
+
+.frame-danger {
+  animation: frame-pulse 1.15s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frame-tile {
+    transition: opacity 1ms;
+  }
+  .frame-danger {
+    animation: none;
+    box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.5);
+  }
+}
