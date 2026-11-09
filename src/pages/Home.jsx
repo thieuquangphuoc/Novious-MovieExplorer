@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { getHeroMovies, getTopRated } from "../services/api";
-import Hero from "../components/Hero";
-import ScrollRow from "../components/ScrollRow";
-import MovieMachine from "../components/MovieMachine";
-import OneMovieChallenge from "../components/OneMovieChallenge";
-import TrailerSection from "../components/TrailerSection";
+import Hero from "../components/home/Hero";
+import ScrollRow from "../components/home/ScrollRow";
+import MovieMachine from "../components/home/MovieMachine";
+import OneMovieChallenge from "../components/home/OneMovieChallenge";
+import TrailerSection from "../components/home/TrailerSection";
 
 const SLIDE_MS = 4000;    // auto-advance every 4 seconds
 

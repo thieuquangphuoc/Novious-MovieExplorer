@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { searchMovies, getTrending } from "../services/api";
-import MovieCard from "../components/MovieCard";
+import MovieCard from "../components/movie/MovieCard";
 
 const IMG_ORIGINAL = "https://image.tmdb.org/t/p/original";
 

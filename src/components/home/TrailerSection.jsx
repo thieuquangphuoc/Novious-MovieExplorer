@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { getMoviesWithTrailers } from "../services/api";
-import TrailerModal from "./TrailerModal";
-import StarRating from "./StarRating";
-import ScrollProgressBar from "./ScrollProgressBar";
+import { getMoviesWithTrailers } from "../../services/api";
+import TrailerModal from "../movie/TrailerModal";
+import StarRating from "../common/StarRating";
+import ScrollProgressBar from "../common/ScrollProgressBar";
 
 const CARD_BACKDROP = "https://image.tmdb.org/t/p/w780";
 const AMBIENT_BACKDROP = "https://image.tmdb.org/t/p/w780";

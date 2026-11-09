@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { discoverOneMovie, getMovieDetails, getTrailerKey } from "../services/api";
-import { QUESTIONS, SEARCH_STAGES, SEARCH_DURATION, SPARKS } from "../data/challenge";
-import StarRating from "./StarRating";
-import TrailerModal from "./TrailerModal";
-import { startSearchHum, playStageBlip, playReveal, playMiss } from "../services/sound";
+import { discoverOneMovie, getMovieDetails, getTrailerKey } from "../../services/api";
+import { QUESTIONS, SEARCH_STAGES, SEARCH_DURATION, SPARKS } from "../../data/challenge";
+import StarRating from "../common/StarRating";
+import TrailerModal from "../movie/TrailerModal";
+import { startSearchHum, playStageBlip, playReveal, playMiss } from "../../services/sound";
 
 const BACKDROP_BASE = "https://image.tmdb.org/t/p/original";
 const POSTER_BASE = "https://image.tmdb.org/t/p/w500";

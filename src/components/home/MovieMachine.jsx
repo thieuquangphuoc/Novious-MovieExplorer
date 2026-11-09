@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { getMoviesByDecade } from "../services/api";
-import decades from "../data/decades";
-import PosterCard from "./PosterCard";
-import ScrollProgressBar from "./ScrollProgressBar";
+import { getMoviesByDecade } from "../../services/api";
+import decades from "../../data/decades";
+import PosterCard from "../movie/PosterCard";
+import ScrollProgressBar from "../common/ScrollProgressBar";
 
 // start on the present day rather than 1920, so the row opens with films
 // most visitors recognise and the slider reads as something to pull back

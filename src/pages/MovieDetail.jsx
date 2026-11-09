@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { getMovieDetails, getMovieCredits, getTrailerKey } from "../services/api";
-import TrailerModal from "../components/TrailerModal";
+import TrailerModal from "../components/movie/TrailerModal";
 
 const BACKDROP_BASE = "https://image.tmdb.org/t/p/original";
 const POSTER_BASE = "https://image.tmdb.org/t/p/w500";

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import StarRating from "./StarRating";
+import StarRating from "../common/StarRating";
 
 const BACKDROP_BASE = "https://image.tmdb.org/t/p/original";
 const POSTER_BASE = "https://image.tmdb.org/t/p/w500";

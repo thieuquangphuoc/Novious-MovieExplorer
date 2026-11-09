@@ -4,7 +4,7 @@ import {
   headlineStats,
   genresInSet,
 } from "../services/insights";
-import CountUp from "../components/CountUp";
+import CountUp from "../components/common/CountUp";
 import Reveal from "../components/insights/Reveal";
 import SuccessMatrix from "../components/insights/SuccessMatrix";
 import BoxOfficeDNA from "../components/insights/BoxOfficeDNA";

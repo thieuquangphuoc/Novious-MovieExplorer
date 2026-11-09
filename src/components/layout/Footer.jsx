@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
-import { getTrending } from "../services/api";
+import { getTrending } from "../../services/api";
 
 const POSTER_BASE = "https://image.tmdb.org/t/p/w342";
 

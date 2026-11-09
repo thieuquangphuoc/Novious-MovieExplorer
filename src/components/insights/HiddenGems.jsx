@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { hiddenGems } from "../../services/insights";
-import StarRating from "../StarRating";
+import StarRating from "../common/StarRating";
 
 const POSTER_BASE = "https://image.tmdb.org/t/p/w342";
 

@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import PosterCard from "./PosterCard";
+import PosterCard from "../movie/PosterCard";
 
 // Tuned against the poster height so a numeral stands as tall as the artwork.
 const NUMBER_FONT_SIZE = "23rem";
