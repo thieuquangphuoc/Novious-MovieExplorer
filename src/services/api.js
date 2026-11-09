@@ -320,10 +320,15 @@ export const discoverMovies = async ({
     const res = await fetch(parts.join(""));
     if (!res.ok) throw new Error(res.status);
     const data = await res.json();
-    return { results: data.results, total: data.total_results };
+    return {
+      results: data.results,
+      total: data.total_results,
+      // TMDB refuses any page above 500, whatever it reports here
+      totalPages: Math.min(data.total_pages || 1, 500),
+    };
   } catch (error) {
     console.log("discoverMovies error:", error);
-    return { results: [], total: 0 };
+    return { results: [], total: 0, totalPages: 1 };
   }
 };
 

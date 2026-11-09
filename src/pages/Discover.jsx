@@ -4,6 +4,19 @@ import MovieCard from "../components/movie/MovieCard";
 import PosterWall from "../components/discover/PosterWall";
 import FilterBar from "../components/discover/FilterBar";
 
+/*
+ * Fisher-Yates on a copy. The copy matters: the array handed in is React
+ * state, and shuffling it in place would mutate state behind React's back.
+ */
+const shuffled = (items) => {
+  const copy = [...items];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+};
+
 const EMPTY_FILTERS = {
   genres: [],
   decade: null,
@@ -20,6 +33,19 @@ function Discover() {
 
   const [movies, setMovies] = useState([]);
   const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+
+  /*
+   * Shuffle state.
+   *
+   * `page` is which page of the catalogue is on screen — normally one,
+   * but Shuffle jumps it somewhere random. `shuffleKey` is bumped on
+   * every press so that the effect re-runs and the order is re-rolled
+   * even when the random page lands on the one already showing.
+   */
+  const [page, setPage] = useState(1);
+  const [shuffleKey, setShuffleKey] = useState(0);
+  const [shuffling, setShuffling] = useState(false);
   const [wallPosters, setWallPosters] = useState([]);
   const [genres, setGenres] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -73,39 +99,72 @@ function Discover() {
           return true;
         });
 
-        setMovies(narrowed);
+        setMovies(shuffleKey > 0 ? shuffled(narrowed) : narrowed);
         setTotal(narrowed.length);
+        setTotalPages(1);
       } else {
-        const { results, total: count } = await discoverMovies({
+        const { results, total: count, totalPages: pages } = await discoverMovies({
           genres: filters.genres,
           yearFrom: decadeFrom,
           yearTo: decadeTo,
           minRating: filters.minRating,
           sortBy: filters.sortBy,
+          page,
         });
         if (cancelled) return;
 
-        setMovies(results);
+        setMovies(shuffleKey > 0 ? shuffled(results) : results);
         setTotal(count);
+        setTotalPages(pages);
       }
 
       setLoading(false);
+      setShuffling(false);
     };
 
     run();
     return () => {
       cancelled = true;
     };
-  }, [submitted, filters]);
+  }, [submitted, filters, page, shuffleKey]);
+
+  // any new question starts from the top of the results, unshuffled
+  const restart = () => {
+    setPage(1);
+    setShuffleKey(0);
+  };
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    restart();
     setSubmitted(query.trim());
   };
 
   const clearSearch = () => {
     setQuery("");
     setSubmitted("");
+    restart();
+  };
+
+  const changeFilters = (next) => {
+    restart();
+    setFilters(next);
+  };
+
+  /*
+   * Shuffle.
+   *
+   * While browsing, it lands on a random page of the current filter —
+   * which is what makes it worth pressing, since page one of "popular
+   * action films" is the same twenty titles every time. While searching
+   * there is only one page to work with, so it reorders that instead.
+   */
+  const handleShuffle = () => {
+    setShuffling(true);
+    setShuffleKey((key) => key + 1);
+    if (!submitted && totalPages > 1) {
+      setPage(1 + Math.floor(Math.random() * totalPages));
+    }
   };
 
   const heading = submitted
@@ -187,11 +246,13 @@ function Discover() {
       {/* ===== FILTERS ===== */}
       <FilterBar
         value={filters}
-        onChange={setFilters}
+        onChange={changeFilters}
         genres={genres}
         searching={Boolean(submitted)}
         resultCount={total}
-        onClear={() => setFilters(EMPTY_FILTERS)}
+        onClear={() => changeFilters(EMPTY_FILTERS)}
+        onShuffle={handleShuffle}
+        shuffling={shuffling}
       />
 
       {/* ===== RESULTS ===== */}
