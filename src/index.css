@@ -494,3 +494,45 @@
     animation: none;
   }
 }
+
+/*
+ * Select fields on the Discover filter bar.
+ *
+ * The browser's own dropdown arrow is turned off and replaced with one
+ * drawn here. Three reasons:
+ *
+ * - The native arrow is painted inside the field's right padding. At the
+ *   12px this bar uses it ended up squashed against the border.
+ * - It is the operating system's widget, so it looked like nothing else
+ *   on the site and would have looked different again on Windows, in
+ *   Firefox and in Safari.
+ * - Its distance from the label moved with the width of each field, so
+ *   three selects of three different widths gave three different gaps.
+ *
+ * The replacement is an inline SVG chevron pinned a fixed 14px from the
+ * right edge, with padding-right reserving room for it, so every field
+ * looks identical no matter how long its longest option is.
+ */
+.select-field {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 2.25rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23a3a3a3' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}
+
+.select-field:hover,
+.select-field:focus {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.select-field:disabled {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23525252' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+/* the dropdown list itself is drawn by the OS, so at least keep it dark */
+.select-field option {
+  background: #161616;
+  color: #e5e5e5;
+}

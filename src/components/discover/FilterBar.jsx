@@ -38,6 +38,14 @@ const Block = ({ label, children }) => (
 const CONTROL =
   "h-10 border border-white/15 bg-[#161616] px-3 text-sm text-neutral-200 outline-none transition-colors hover:border-white/30 focus:border-[#E50914]";
 
+/*
+ * min-w keeps the three dropdowns close in width. Left to size
+ * themselves they came out 163, 123 and 115 pixels wide, which put each
+ * chevron a different distance from its label and made a tidy row look
+ * accidental.
+ */
+const SELECT = `${CONTROL} select-field min-w-[11rem] cursor-pointer`;
+
 const ShuffleIcon = () => (
   <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
     <path
@@ -97,7 +105,7 @@ const FilterBar = ({
               value={value.sortBy}
               onChange={(event) => set({ sortBy: event.target.value })}
               disabled={searching}
-              className={`${CONTROL} disabled:cursor-not-allowed disabled:opacity-40`}
+              className={`${SELECT} disabled:cursor-not-allowed disabled:opacity-40`}
             >
               {SORTS.map((sort) => (
                 <option key={sort.id} value={sort.id}>
@@ -113,7 +121,7 @@ const FilterBar = ({
               onChange={(event) =>
                 set({ decade: event.target.value ? Number(event.target.value) : null })
               }
-              className={CONTROL}
+              className={SELECT}
             >
               <option value="">Any decade</option>
               {DECADES.map((decade) => (
@@ -128,7 +136,7 @@ const FilterBar = ({
             <select
               value={value.minRating}
               onChange={(event) => set({ minRating: Number(event.target.value) })}
-              className={CONTROL}
+              className={SELECT}
             >
               {RATINGS.map((rating) => (
                 <option key={rating} value={rating}>
