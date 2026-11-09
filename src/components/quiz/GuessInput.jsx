@@ -21,7 +21,7 @@ const DEBOUNCE_MS = 300;
  *
  * Nothing here knows the answer, so the suggestions cannot leak it.
  */
-const GuessInput = ({ onGuess, disabled, attemptsLeft, danger }) => {
+const GuessInput = ({ onGuess, danger }) => {
   const [text, setText] = useState("");
   const [options, setOptions] = useState([]);
   const [chosen, setChosen] = useState(null);
@@ -85,7 +85,7 @@ const GuessInput = ({ onGuess, disabled, attemptsLeft, danger }) => {
 
   const submit = (event) => {
     event.preventDefault();
-    if (!chosen || disabled) return;
+    if (!chosen) return;
     onGuess(chosen);
     reset();
   };
@@ -109,30 +109,40 @@ const GuessInput = ({ onGuess, disabled, attemptsLeft, danger }) => {
 
   return (
     <form onSubmit={submit} className="relative" ref={boxRef}>
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <div className="relative flex-1">
+      <div className="grid gap-2">
+        <div className="relative">
+          <svg
+            aria-hidden="true"
+            className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#ff515b]"
+            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+          >
+            <circle cx="8.5" cy="8.5" r="4.5" />
+            <path d="m12 12 4 4" />
+          </svg>
           <input
             value={text}
-            disabled={disabled}
             onChange={(event) => {
               setText(event.target.value);
               setChosen(null);
             }}
             onKeyDown={onKeyDown}
             onFocus={() => suggestions.length > 0 && setOpen(true)}
-            placeholder="Name the film…"
+            placeholder="Search for a film…"
             aria-label="Type a film title and pick it from the list"
             autoComplete="off"
-            className={`w-full border bg-[#161616] px-4 py-3 pr-10 text-white placeholder-neutral-500 outline-none transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+            className={`min-h-12 w-full border bg-[#101010] py-3 pl-9 pr-10 text-white placeholder-neutral-400 transition-colors ${
               chosen
-                ? "border-[#E50914]"
+                ? "border-[#ff515b]"
                 : danger
-                  ? "frame-danger border-[#E50914]/60"
-                  : "border-white/15 focus:border-white/40"
+                  ? "frame-danger border-[#ff8087]"
+                  : "border-white/25 hover:border-white/50"
             }`}
           />
 
-          {text && !disabled && (
+          {text && (
             <button
               type="button"
               onClick={reset}
@@ -148,29 +158,27 @@ const GuessInput = ({ onGuess, disabled, attemptsLeft, danger }) => {
 
         <button
           type="submit"
-          disabled={!chosen || disabled}
-          className="shrink-0 bg-[#E50914] px-6 py-3 text-sm font-semibold text-white transition duration-200 hover:bg-[#f6121d] disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-neutral-500"
+          disabled={!chosen}
+          className="flex min-h-11 items-center justify-between bg-[#c7121b] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#e01822] disabled:cursor-not-allowed disabled:bg-[#303030] disabled:text-neutral-400"
         >
-          Submit guess
+          Submit guess <span aria-hidden="true">→</span>
         </button>
       </div>
 
-      {!chosen && text.trim().length >= 2 && !disabled && (
-        <p className="mt-2 text-xs text-neutral-600">
-          {searching ? "Searching…" : "Pick a film from the list to submit."}
+      {!chosen && text.trim().length >= 2 && (
+        <p className="mt-2 text-xs text-neutral-300">
+          {searching
+            ? "Searching…"
+            : open && suggestions.length === 0
+              ? "No matching films."
+              : "Pick a film from the list to submit."}
         </p>
       )}
 
-      {chosen && !disabled && (
-        <p className="mt-2 text-xs text-neutral-500">
-          {attemptsLeft} guess{attemptsLeft === 1 ? "" : "es"} left.
-        </p>
-      )}
-
-      {open && suggestions.length > 0 && !disabled && (
+      {open && suggestions.length > 0 && (
         <ul
           role="listbox"
-          className="absolute left-0 right-0 top-full z-30 mt-1 max-h-80 overflow-y-auto border border-white/15 bg-[#0d0d0d] shadow-2xl shadow-black/70"
+          className="absolute left-0 right-0 top-full z-30 mt-1 max-h-80 overflow-y-auto border border-[#505050] bg-[#171717] shadow-2xl shadow-black/70"
         >
           {suggestions.map((movie, index) => (
             <li key={movie.id}>
@@ -196,7 +204,7 @@ const GuessInput = ({ onGuess, disabled, attemptsLeft, danger }) => {
 
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm text-white">{movie.title}</span>
-                  <span className="block text-xs text-neutral-500">
+                  <span className="block text-xs text-neutral-400">
                     {movie.release_date.slice(0, 4)}
                   </span>
                 </span>

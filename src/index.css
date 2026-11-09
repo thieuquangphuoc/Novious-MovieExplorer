@@ -543,24 +543,40 @@
  * ====================================================================
  */
 
-/*
- * The six tiles covering the still.
- *
- * Each one fades and lifts away rather than simply vanishing, so the
- * picture feels uncovered rather than switched on. The delay is set per
- * tile from the component, which is what makes the final reveal sweep
- * across instead of opening all six at once.
- */
+.frame-quiz :is(button, a, input):focus-visible {
+  outline: 2px solid #ff515b;
+  outline-offset: 3px;
+}
+
+.frame-title-outline {
+  color: transparent;
+  -webkit-text-stroke: 1px #E50914;
+}
+
+/* Repeating sprocket holes along the edge of the film. */
+.frame-perforations {
+  height: 6px;
+  background: repeating-linear-gradient(90deg, #505050 0 13px, transparent 13px 24px);
+}
+
+/* The opaque shutters slide away to expose the still underneath. */
 .frame-tile {
-  transition: opacity 650ms cubic-bezier(0.16, 1, 0.3, 1),
-    transform 650ms cubic-bezier(0.16, 1, 0.3, 1),
-    filter 650ms ease;
+  position: relative;
+  display: grid;
+  place-items: center;
+  border: 1px solid #101010;
+  background: repeating-linear-gradient(135deg, #ffffff06 0 1px, transparent 1px 7px),
+    #232323;
+  clip-path: inset(0);
+  transition: clip-path 480ms cubic-bezier(0.7, 0, 0.15, 1);
+}
+
+.frame-tile:nth-child(even) {
+  background-color: #2a2a2a;
 }
 
 .frame-tile.is-open {
-  opacity: 0;
-  transform: scale(1.06);
-  pointer-events: none;
+  clip-path: inset(0 0 100% 0);
 }
 
 /*
@@ -585,7 +601,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .frame-tile {
-    transition: opacity 1ms;
+    transition: none;
   }
   .frame-danger {
     animation: none;
