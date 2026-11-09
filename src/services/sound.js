@@ -22,6 +22,29 @@
  * first call always comes from the click on Find My Movie.
  */
 
+/*
+ * ====================================================================
+ *  VOLUME — change this one number
+ * ====================================================================
+ *
+ * Every cue below is written at its own natural level, then multiplied by
+ * this. So 1 is how it was tuned, 0.5 is half as loud, 2 is twice.
+ *
+ * Why a multiplier instead of editing each sound: the four cues are
+ * balanced against each other — the drone sits under the blips, the blips
+ * sit under the chord. Raising them individually would break that balance
+ * the first time you forgot one. Scaling them all keeps the mix intact.
+ *
+ * Going much above 2 will distort: Web Audio clips anything that pushes
+ * the output past 1.0, and the chord already stacks five tones at once.
+ *
+ * If you want one cue louder relative to the rest, change its own `peak`
+ * where it is defined further down, not this.
+ */
+export const MASTER_VOLUME = 1;
+
+const level = (value) => Math.max(0.0001, value * MASTER_VOLUME);
+
 let context = null;
 
 const getContext = () => {
@@ -54,7 +77,7 @@ const tone = ({ ac, type = "sine", freq, start, duration, peak, glideTo }) => {
   if (glideTo) osc.frequency.exponentialRampToValueAtTime(glideTo, start + duration);
 
   gain.gain.setValueAtTime(0.0001, start);
-  gain.gain.exponentialRampToValueAtTime(peak, start + 0.02);
+  gain.gain.exponentialRampToValueAtTime(level(peak), start + 0.02);
   gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
 
   osc.connect(gain).connect(ac.destination);
@@ -95,7 +118,7 @@ export const startSearchHum = (seconds) => {
   filter.frequency.exponentialRampToValueAtTime(1100, now + seconds);
 
   gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.exponentialRampToValueAtTime(0.045, now + 0.6);
+  gain.gain.exponentialRampToValueAtTime(level(0.045), now + 0.6);
 
   low.connect(filter);
   high.connect(filter);

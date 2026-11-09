@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 
 /*
  * Full-screen player for a YouTube trailer.
@@ -19,6 +20,14 @@ import { useEffect } from "react";
  * The backdrop closes on click, but the frame around the video calls
  * stopPropagation so clicking the player itself does not count as clicking
  * the backdrop.
+ *
+ * The whole thing is sent to <body> through a portal rather than rendered
+ * where it is written. Every section that opens a trailer carries
+ * `isolate`, which creates a stacking context, and z-index inside one of
+ * those only ranks against its own siblings — so the player sat at z-100
+ * inside the trailer strip and the next section down the page still
+ * painted straight over it. A portal lifts it out of all of them, and it
+ * fixes all three callers at once.
  */
 const TrailerModal = ({ trailerKey, title, onClose }) => {
   useEffect(() => {
@@ -40,7 +49,7 @@ const TrailerModal = ({ trailerKey, title, onClose }) => {
 
   if (!trailerKey) return null;
 
-  return (
+  return createPortal(
     <div
       onClick={onClose}
       role="dialog"
@@ -73,7 +82,8 @@ const TrailerModal = ({ trailerKey, title, onClose }) => {
           />
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

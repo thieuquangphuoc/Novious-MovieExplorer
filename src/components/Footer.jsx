@@ -110,7 +110,7 @@ const Footer = () => {
 
         <div className="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs text-neutral-500 sm:flex-row sm:items-center sm:justify-between">
           <p>
-            Final project — Web Programming I, University of Eastern Finland
+            Final project | Web Programming I
           </p>
           <p>This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
         </div>
