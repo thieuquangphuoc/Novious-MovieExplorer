@@ -444,3 +444,53 @@
     animation: none;
   }
 }
+
+/*
+ * ====================================================================
+ *  DISCOVER — the poster wall behind the search
+ * ====================================================================
+ *
+ * Columns of real posters drifting vertically, alternate columns running
+ * in opposite directions. Unblurred, unlike the backdrops used elsewhere
+ * on the site: the point here is that you can recognise the films, so the
+ * page says "this is a catalogue" before you have read a word of it.
+ *
+ * Each column prints its posters twice and travels exactly -50% of its
+ * own height, so the loop lands on an identical frame and there is no
+ * seam — the same trick the home page rows use, turned on its side.
+ *
+ * The durations are long and deliberately unequal, so the columns never
+ * fall into step with each other.
+ */
+@keyframes poster-drift-up {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes poster-drift-down {
+  from {
+    transform: translateY(-50%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.poster-up {
+  animation: poster-drift-up var(--dur, 80s) linear infinite;
+}
+
+.poster-down {
+  animation: poster-drift-down var(--dur, 80s) linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .poster-up,
+  .poster-down {
+    animation: none;
+  }
+}

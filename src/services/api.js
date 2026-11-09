@@ -281,6 +281,52 @@ export const discoverOneMovie = async ({ genres, maxRuntime, safe, exclude = [] 
   }
 };
 
+/*
+ * The Discover page's filtered browse.
+ *
+ * /discover is the only endpoint that takes filters — genre, year, score,
+ * sort order. /search takes none of them: it matches a title and returns
+ * whatever it finds, which is why the page falls back to filtering search
+ * results in the browser and says so on screen.
+ *
+ * Genre ids are joined with a pipe (OR) rather than a comma (AND), so
+ * picking Action and Comedy means "either", not "a film that is both".
+ *
+ * vote_count.gte is not something the page exposes. Without it, sorting
+ * by score returns obscure films with a single ten-star vote; with it,
+ * the ordering means something. It scales with the sort so that browsing
+ * by popularity is not needlessly narrowed.
+ */
+export const discoverMovies = async ({
+  genres = [],
+  yearFrom = null,
+  yearTo = null,
+  minRating = 0,
+  sortBy = "popularity.desc",
+  page = 1,
+} = {}) => {
+  const parts = [
+    `${BASE}/discover/movie?api_key=${KEY}&include_adult=false`,
+    `&page=${page}`,
+    `&sort_by=${sortBy}`,
+    genres.length ? `&with_genres=${genres.join("%7C")}` : "",
+    yearFrom ? `&primary_release_date.gte=${yearFrom}-01-01` : "",
+    yearTo ? `&primary_release_date.lte=${yearTo}-12-31` : "",
+    minRating > 0 ? `&vote_average.gte=${minRating}` : "",
+    sortBy.startsWith("vote_average") ? "&vote_count.gte=300" : "&vote_count.gte=20",
+  ];
+
+  try {
+    const res = await fetch(parts.join(""));
+    if (!res.ok) throw new Error(res.status);
+    const data = await res.json();
+    return { results: data.results, total: data.total_results };
+  } catch (error) {
+    console.log("discoverMovies error:", error);
+    return { results: [], total: 0 };
+  }
+};
+
 export const getGenres = async () => {
   try {
     const res = await fetch(`${BASE}/genre/movie/list?api_key=${KEY}`);
