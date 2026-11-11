@@ -15,7 +15,7 @@
 
 ---
 
-![preview](./assets/preview.gif)
+![preview](./assets/preview-novious.gif)
 
 <p align="center"><i>Home carousel → Movie Machine → Frame by Frame → Cinema Decoded</i></p>
 
@@ -123,7 +123,7 @@ Novious-MovieExplorer/
 ├── .env.local                      # VITE_TMDB_KEY (gitignored — never committed)
 │
 ├── assets/
-│   └── preview.gif                 # Demo recording embedded in this document
+│   └── preview-novious.gif         # Demo recording embedded in this document
 │
 ├── public/                         # STATIC ASSETS (copied verbatim to the build)
 │   ├── logo-design.png             # Original logo artwork, 2000×2000
