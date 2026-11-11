@@ -36,6 +36,9 @@ jobs:
 
       - name: Build website
         run: npm run build
+        env:
+          VITE_TMDB_KEY: ${{ secrets.VITE_TMDB_KEY }}
+        
 
       - name: Upload website artifact
         uses: actions/upload-pages-artifact@v3
