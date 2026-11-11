@@ -1,21 +1,4 @@
-/*
- * ====================================================================
- *  THE ONE MOVIE CHALLENGE — the questionnaire
- * ====================================================================
- *
- * Every answer carries the /discover filter it stands for, so the form is
- * the whole specification of the search: the component reads values off
- * these objects and never decides what an answer means.
- *
- * TMDB genre ids used below:
- *   12 Adventure · 14 Fantasy · 18 Drama · 27 Horror · 28 Action
- *   35 Comedy · 53 Thriller · 878 Science Fiction · 9648 Mystery
- *   10749 Romance · 10751 Family
- *
- * A mood maps to two genres rather than one because a single id is too
- * narrow to keep returning fresh answers — and they are combined with OR,
- * so Thrilled means thriller *or* action, not both at once.
- */
+// THE ONE MOVIE CHALLENGE — the questionnaire
 export const QUESTIONS = [
   {
     id: "time",
@@ -59,13 +42,6 @@ export const QUESTIONS = [
   },
 ];
 
-/*
- * The three stages of the search animation.
- *
- * `at` is when each line takes over, in milliseconds from the moment the
- * visitor submits. The last one is the arrival, so the whole sequence runs
- * a little under five seconds before the film is revealed.
- */
 export const SEARCH_STAGES = [
   { at: 0, text: "Reading your movie DNA" },
   { at: 1700, text: "Exploring the cinema universe" },
@@ -74,20 +50,6 @@ export const SEARCH_STAGES = [
 
 export const SEARCH_DURATION = 4800;
 
-/*
- * The sparks drifting behind the section.
- *
- * Hand-placed rather than generated with Math.random, for two reasons.
- * React treats a random call during render as impure — it would give a
- * different answer on a re-render or a replay — and the scattered feeling
- * does not actually come from randomness: it comes from the durations and
- * delays never lining up. These are deliberately awkward numbers (3.7,
- * 5.3, 6.1, 4.9...) so no two sparks pulse together, and the pattern takes
- * minutes to repeat.
- *
- * top/left are percentages, size is rem, peak is the brightest the spark
- * is allowed to get.
- */
 export const SPARKS = [
   { id: 1, top: 8, left: 6, size: 7, dur: 5.3, delay: 0, peak: 0.2, tint: "#ff6b6b" },
   { id: 2, top: 62, left: 14, size: 5, dur: 3.7, delay: 1.9, peak: 0.16, tint: "#ffd9a0" },

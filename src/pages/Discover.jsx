@@ -4,10 +4,6 @@ import MovieCard from "../components/movie/MovieCard";
 import PosterWall from "../components/discover/PosterWall";
 import FilterBar from "../components/discover/FilterBar";
 
-/*
- * Fisher-Yates on a copy. The copy matters: the array handed in is React
- * state, and shuffling it in place would mutate state behind React's back.
- */
 const shuffled = (items) => {
   const copy = [...items];
   for (let i = copy.length - 1; i > 0; i--) {
@@ -26,8 +22,6 @@ const EMPTY_FILTERS = {
 
 function Discover() {
   const [query, setQuery] = useState("");
-  // the text actually searched for, which is not the same as what is in
-  // the box — the heading must not change as somebody types
   const [submitted, setSubmitted] = useState("");
   const [filters, setFilters] = useState(EMPTY_FILTERS);
 
@@ -35,14 +29,6 @@ function Discover() {
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
 
-  /*
-   * Shuffle state.
-   *
-   * `page` is which page of the catalogue is on screen — normally one,
-   * but Shuffle jumps it somewhere random. `shuffleKey` is bumped on
-   * every press so that the effect re-runs and the order is re-rolled
-   * even when the random page lands on the one already showing.
-   */
   const [page, setPage] = useState(1);
   const [shuffleKey, setShuffleKey] = useState(0);
   const [shuffling, setShuffling] = useState(false);
@@ -60,17 +46,6 @@ function Discover() {
     load();
   }, []);
 
-  /*
-   * One effect drives the results, and it runs on every change to the
-   * search term or the filters.
-   *
-   * Two different endpoints sit behind it. With no search term the page
-   * browses the catalogue through /discover, which does the filtering
-   * server side. With a search term it has to use /search, which accepts
-   * no filters at all, so the same filters are applied to the results
-   * afterwards here. FilterBar says as much on screen rather than letting
-   * the controls quietly mean something different.
-   */
   useEffect(() => {
     let cancelled = false;
 
@@ -151,14 +126,6 @@ function Discover() {
     setFilters(next);
   };
 
-  /*
-   * Shuffle.
-   *
-   * While browsing, it lands on a random page of the current filter —
-   * which is what makes it worth pressing, since page one of "popular
-   * action films" is the same twenty titles every time. While searching
-   * there is only one page to work with, so it reorders that instead.
-   */
   const handleShuffle = () => {
     setShuffling(true);
     setShuffleKey((key) => key + 1);
@@ -175,12 +142,10 @@ function Discover() {
 
   return (
     <div className="min-h-screen bg-[#141414]">
-      {/* ===== HERO ===== */}
+      
       <section className="relative flex min-h-[32rem] items-center overflow-hidden pt-24">
         <PosterWall posters={wallPosters} />
 
-        {/* the wall has to recede far enough for white text to sit on it:
-            a flat wash, then a left-to-right fade over the column of text */}
         <div className="absolute inset-0 bg-[#0d0d0d]/75" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#0d0d0d] via-[#0d0d0d]/90 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#141414] to-transparent" />
@@ -243,7 +208,6 @@ function Discover() {
         </div>
       </section>
 
-      {/* ===== FILTERS ===== */}
       <FilterBar
         value={filters}
         onChange={changeFilters}
@@ -255,13 +219,10 @@ function Discover() {
         shuffling={shuffling}
       />
 
-      {/* ===== RESULTS ===== */}
       <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <h2 className="mb-6 text-xl font-bold text-white">{heading}</h2>
 
         {loading ? (
-          /* placeholders in the grid's own shape, so nothing jumps when
-             the real posters arrive */
           <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
             {Array.from({ length: 10 }).map((unused, index) => (
               <div key={index} className="decoded-skeleton aspect-[2/3] w-full rounded-md" />

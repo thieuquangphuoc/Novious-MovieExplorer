@@ -16,26 +16,8 @@ import { withReturnMultiple, MIN_CREDIBLE_BUDGET } from "../../services/insights
 
 const axisStyle = { fill: "#6b6b6b", fontSize: 11 };
 
-// A film has to clear roughly twice its production budget to be in profit:
-// cinemas keep about half the ticket, and marketing is not in the budget.
 const BREAK_EVEN_MULTIPLE = 2;
 
-/*
- * BOX OFFICE DNA — what a film cost against what it took.
- *
- * Both axes are logarithmic because the spread is enormous in both
- * directions: budgets here run from under a million to over three hundred
- * million, grosses from a few million to nearly three billion. On linear
- * axes the whole set collapses into one corner.
- *
- * The dashed diagonal is the break-even line, drawn at 2x budget rather
- * than 1x. A studio does not keep the gross: cinemas take roughly half of
- * every ticket, and the marketing spend is not counted in the production
- * budget at all. Anything below that line almost certainly lost money.
- *
- * Films with a budget under one million are excluded entirely — see
- * MIN_CREDIBLE_BUDGET in services/insights.js for why.
- */
 const BoxOfficeDNA = ({ movies }) => {
   const navigate = useNavigate();
 
@@ -125,7 +107,6 @@ const BoxOfficeDNA = ({ movies }) => {
               }
             />
 
-            {/* the break-even diagonal: two points joined, dots hidden */}
             <Scatter
               data={breakEven}
               line={{ stroke: "#ffffff", strokeOpacity: 0.3, strokeDasharray: "5 5" }}

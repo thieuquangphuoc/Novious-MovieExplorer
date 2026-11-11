@@ -1,13 +1,7 @@
 import { discoverMovies, getMovieDetails } from "./api";
 import frameDailyIds from "../data/frameDaily";
 
-/*
- * ====================================================================
- *  FRAME BY FRAME — rules, film selection and saved progress
- * ====================================================================
- *
- * Everything here is logic and storage. The components do the drawing.
- */
+// FRAME BY FRAME — rules, film selection and saved progress
 
 // Thriller and Adventure, as the brief asks. Joined with OR, not AND.
 export const GAME_GENRES = [53, 12];
@@ -16,20 +10,11 @@ export const MIN_VOTES = 500;
 export const TILES = 6;
 export const MAX_ATTEMPTS = 6;
 
-/*
- * What a win is worth, by how many tiles were open when it landed.
- *
- * Steep at the start and shallow at the end on purpose: the drop from
- * one tile to two should sting, while the difference between five and
- * six barely matters because by then you were going to lose anyway.
- */
 export const SCORES = [1000, 720, 500, 320, 180, 80];
 
 export const scoreFor = (tilesOpen) => SCORES[Math.min(tilesOpen, SCORES.length) - 1] || 0;
 
-/* ====================================================================
- *  PICKING THE FILM
- * ==================================================================== */
+// PICKING THE FILM
 
 const playable = (movie) =>
   Boolean(movie) &&
@@ -38,26 +23,11 @@ const playable = (movie) =>
   Boolean(movie.release_date) &&
   movie.release_date <= new Date().toISOString().slice(0, 10);
 
-/*
- * Days elapsed since an arbitrary epoch, in UTC.
- *
- * UTC rather than local time so that everyone is on the same puzzle at
- * the same moment, and so the answer cannot change by travelling or by
- * the clock going forward.
- */
 export const dayNumber = (date = new Date()) =>
   Math.floor(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()) / 86_400_000);
 
 export const todayKey = (date = new Date()) => date.toISOString().slice(0, 10);
 
-/*
- * The daily film: the same one for everybody, all day.
- *
- * Indexing a fixed list by the day number is what guarantees that. The
- * obvious alternative — asking /discover for the most popular thriller —
- * would hand out a different film by the evening, because popularity is
- * recalculated continuously.
- */
 export const loadDailyMovie = async () => {
   const index = dayNumber() % frameDailyIds.length;
   const movie = await getMovieDetails(frameDailyIds[index]);
@@ -75,13 +45,6 @@ export const loadDailyMovie = async () => {
   throw new Error("no playable daily film");
 };
 
-/*
- * A random film for Unlimited mode.
- *
- * A random page is drawn rather than a random film from page one, or the
- * game would offer the same twenty blockbusters forever. `exclude` holds
- * everything already played this session so a round never repeats.
- */
 export const loadRandomMovie = async (exclude = []) => {
   for (let attempt = 0; attempt < 4; attempt++) {
     const page = 1 + Math.floor(Math.random() * 12);
@@ -105,12 +68,7 @@ export const loadRandomMovie = async (exclude = []) => {
   throw new Error("no playable film found");
 };
 
-/* ====================================================================
- *  SAVED PROGRESS
- *  Wrapped in try/catch throughout: a private window can refuse
- *  localStorage outright, and a game that crashes there is worse than
- *  one that simply forgets.
- * ==================================================================== */
+// SAVED PROGRESS
 
 const STATS_KEY = "novious-frame-stats";
 const DAILY_KEY = "novious-frame-daily";
@@ -144,13 +102,6 @@ const writeStats = (stats) => {
   return stats;
 };
 
-/*
- * Fold one finished round into the saved stats.
- *
- * The streak only moves on the daily puzzle. Unlimited rounds count
- * towards everything else, but letting them build a streak would make
- * the number meaningless — you could sit and play twenty in a row.
- */
 export const recordRound = ({ won, score, tilesOpen, isDaily }) => {
   const stats = readStats();
 
@@ -208,11 +159,7 @@ export const writeSoundPreference = (on) => {
   }
 };
 
-/* ====================================================================
- *  ACHIEVEMENTS
- *  Derived from the stats rather than stored separately, so they can
- *  never disagree with the numbers shown beside them.
- * ==================================================================== */
+// ACHIEVEMENTS
 
 export const achievementsFor = (stats) => [
   {

@@ -1,34 +1,4 @@
-/*
- * ====================================================================
- *  THE LOOK OF EACH DECADE
- * ====================================================================
- *
- * The Movie Machine repaints itself as the visitor drags through time, and
- * every value that changes lives here. The component reads this table and
- * holds no styling of its own, so a decade can be retuned without touching
- * any logic.
- *
- * Per entry:
- *   start     first year of the decade; also what /discover is asked for
- *   label     what the tick under the slider says
- *   era       a short name for the period, shown beside the years
- *   blurb     one line of context, so the slider teaches as well as filters
- *   from/via/to   the three stops of the background gradient
- *   accent    the decade's highlight colour, used on the handle and the era
- *   font      display face, for the decade number and the era
- *   bodyFont  face for the smaller text underneath
-
- *             Two faces, not one, because the display choice cannot carry
- *             body copy: Bebas Neue has no lower case worth reading at
- *             14px. Each pair is from the same family of shapes, so the
- *             panel still reads as one typeface decision per decade.
- *   grain     0 to 1; how much film grain sits over the panel
- *
- * Why it starts at 1920: TMDB does hold older films — A Trip to the Moon is
- * from 1902 — but the 1900s return twelve titles in total and the 1910s
- * barely thirty, which is not enough to fill a row. The 1920s is the first
- * decade with a real catalogue behind it.
- */
+// THE LOOK OF EACH DECADE
 const decades = [
   {
     start: 1920,

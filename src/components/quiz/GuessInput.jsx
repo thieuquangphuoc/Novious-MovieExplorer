@@ -5,22 +5,6 @@ const POSTER_BASE = "https://image.tmdb.org/t/p/w92";
 const MAX_SUGGESTIONS = 6;
 const DEBOUNCE_MS = 300;
 
-/*
- * The guess box, with autocomplete over the whole of TMDB.
- *
- * Guesses are compared by TMDB id, never by the text typed. Titles are a
- * minefield — "Se7en" against "Seven", accents, subtitles, re-releases —
- * and a game that rejects a correct answer over punctuation is broken.
- * Picking from the list is therefore required: the Submit button stays
- * disabled until a film has been chosen.
- *
- * The search is debounced. Without it every keystroke is a request, so
- * typing one title fires a dozen and the answers arrive out of order.
- * The `cancelled` flag covers the rest: a slow early reply must not
- * overwrite the list for what is now in the box.
- *
- * Nothing here knows the answer, so the suggestions cannot leak it.
- */
 const GuessInput = ({ onGuess, danger }) => {
   const [text, setText] = useState("");
   const [options, setOptions] = useState([]);
@@ -32,9 +16,6 @@ const GuessInput = ({ onGuess, danger }) => {
   const boxRef = useRef(null);
 
   useEffect(() => {
-    // nothing to search for yet; the list is hidden by `suggestions`
-    // below rather than cleared here, because clearing state straight
-    // from an effect body is what triggers a cascading render
     if (chosen || text.trim().length < 2) return undefined;
 
     let cancelled = false;
@@ -65,10 +46,6 @@ const GuessInput = ({ onGuess, danger }) => {
     return () => document.removeEventListener("mousedown", onDocumentClick);
   }, []);
 
-  /*
-   * What the list actually shows. Derived instead of stored, so a query
-   * too short to search cannot leave yesterday's suggestions on screen.
-   */
   const suggestions = !chosen && text.trim().length >= 2 ? options : [];
 
   const choose = (movie) => {

@@ -22,26 +22,6 @@ const Arrow = ({ direction, onClick }) => (
   </button>
 );
 
-/*
- * A horizontal row of films that the visitor steps through with arrows.
- *
- * The track is a plain overflow-x container, so a trackpad swipe or a touch
- * drag still works; the arrows just call scrollBy for people using a mouse.
- * Each press moves 85% of the visible width, leaving a sliver of the previous
- * card on screen so the eye keeps its place.
- *
- * py-6 inside the track is not decoration. overflow-x also clips vertically,
- * so without that padding the card would be cut off the moment it lifts on
- * hover.
- *
- * numbered renders the Top 10 variant: a hollow numeral behind each poster,
- * sized to stand as tall as the artwork, with the poster pulled back over its
- * tail. The pull has to be generous — a digit that big carries a lot of empty
- * space inside its own glyph box, so a small negative margin leaves what looks
- * like a gap between the number and the film it belongs to. Too generous and
- * the narrow digits — 1 above all — disappear behind the poster entirely. Cards come from the same PosterCard either way, so all three rows on
- * the home page are exactly the same size.
- */
 const ScrollRow = ({ title, movies, numbered = false, limit }) => {
   const trackRef = useRef(null);
   const list = limit ? movies.slice(0, limit) : movies;

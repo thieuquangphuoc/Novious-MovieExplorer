@@ -8,22 +8,6 @@ import TrailerSection from "../components/home/TrailerSection";
 
 const SLIDE_MS = 4000;    // auto-advance every 4 seconds
 
-/*
- * Geometry of the hero carousel.
- *
- * Each card takes SLIDE_WIDTH% of the width, leaving the rest split evenly
- * between the two edges, where the previous and next films peek in.
- *
- * To centre card i the track shifts by 50% minus the centre of that card,
- * which is what trackOffset works out.
- *
- * The two numbers are tied together. A card off to the side is also scaled
- * down, and scaling pulls its edges inward, away from the screen edge — so
- * shrinking the neighbours eats into the peek. At 86% wide and 0.84 scale
- * the neighbours retreated so far that nothing showed at all, and 82% with
- * 0.90 still left only about 43px. 76% with a 0.92 scale shows roughly 90px
- * of artwork on each side, which reads clearly as another film waiting.
- */
 const SLIDE_WIDTH = 76;
 const ROW_PAGES = 4;      // four TMDB pages, so roughly 80 films per row
 const trackOffset = (index) => (100 - SLIDE_WIDTH) / 2 - index * SLIDE_WIDTH;
@@ -34,14 +18,6 @@ const Home = () => {
 
   const [topRated, setTopRated] = useState([]);
 
-  /*
-   * Load what this page owns, once, on mount.
-   *
-   * The two calls run in parallel through Promise.all because neither
-   * depends on the other. MovieMachine and TrailerSection fetch their own
-   * data, since what they need changes with the decade or tab the visitor
-   * picks and only they know which one that is.
-   */
   useEffect(() => {
     const load = async () => {
       const [hero, rated] = await Promise.all([
@@ -54,14 +30,6 @@ const Home = () => {
     load();
   }, []);
 
-  /*
-   * The auto-advance clock.
-   *
-   * index sits in the dependency array on purpose: every time the visitor
-   * presses an arrow the effect re-runs, the old interval is cleared and the
-   * four seconds start again. Without that, pressing an arrow just before
-   * the old timer fired would jump straight on to the next film.
-   */
   useEffect(() => {
     if (heroMovies.length === 0) return;
 
@@ -78,7 +46,7 @@ const Home = () => {
   return (
     // pt-24 clears the fixed navigation bar floating above the page
     <div className="pt-24">
-      {/* ===== HERO CAROUSEL ===== */}
+      
       {heroMovies.length === 0 ? (
         // grey block of the right height so the page does not jump when the images land
         <div className="mx-auto h-[58vh] max-h-[560px] min-h-[400px] w-[86%] animate-pulse rounded-xl bg-[#1c1c1c]" />
@@ -94,7 +62,7 @@ const Home = () => {
                 className="h-[58vh] max-h-[560px] min-h-[400px] shrink-0 px-2 transition-all duration-700 ease-out"
                 style={{ width: `${SLIDE_WIDTH}%` }}
               >
-                {/* only the centre card is at full size; the neighbours sit back */}
+                
                 <div
                   className={`h-full transition-all duration-700 ease-out ${
                     i === index ? "scale-[1.04] opacity-100" : "scale-[0.92] opacity-60"
@@ -126,7 +94,6 @@ const Home = () => {
             </svg>
           </button>
 
-          {/* dots show which film is centred, and jump straight to it */}
           <div className="mt-5 flex justify-center gap-2">
             {heroMovies.map((movie, i) => (
               <button
@@ -142,20 +109,13 @@ const Home = () => {
         </div>
       )}
 
-      {/* ===== FILM ROWS ===== */}
       
       <TrailerSection />
       <MovieMachine />
       <ScrollRow title="Top rated of all time" movies={topRated} />
       <OneMovieChallenge />
 
-
-
-      {/* Parked, not deleted. Both rows still work — ScrollRow and the
-          trending endpoints are untouched — so either can come back with
-          one line plus its fetch:
-          <ScrollRow title="Trending this week" movies={trendingWeek} />
-          <ScrollRow title="Top 10 today" movies={trendingDay} numbered limit={10} /> */}
+      
     </div>
   );
 };

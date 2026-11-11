@@ -1,25 +1,4 @@
-/*
- * ====================================================================
- *  THE DAILY ROTA FOR FRAME BY FRAME
- * ====================================================================
- *
- * TMDB ids only — every title, poster and backdrop is still fetched live.
- * Nothing about the films is written down here, just which films are in
- * the rota.
- *
- * Why a fixed list rather than asking /discover each day: the daily
- * puzzle has to be the same film for everyone, and the same film after a
- * refresh. /discover is ordered by popularity, which shifts hourly, so
- * "the third most popular thriller" is a different film by the evening.
- * A fixed list indexed by the UTC date cannot drift.
- *
- * Every entry was checked to be released, Thriller (53) or Adventure
- * (12), carrying both a poster and a backdrop, and with at least 500
- * votes — the game is unfair with a film nobody has seen.
- *
- * To change the rota, add or remove ids. Order does not matter; the day
- * index is taken modulo the length, so the rota simply gets longer.
- */
+// THE DAILY ROTA FOR FRAME BY FRAME
 const frameDailyIds = [
   155,      // The Dark Knight
   157336,   // Interstellar

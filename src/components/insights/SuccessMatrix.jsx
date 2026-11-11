@@ -24,25 +24,6 @@ const medianOf = (numbers) => {
   return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
 };
 
-/*
- * THE SUCCESS MATRIX — does being good pay?
- *
- * Audience score on one axis, worldwide gross on the other, with the dot
- * sized by how many people voted. The question it answers is whether the
- * two are related at all, and the honest answer the data gives is: barely.
- *
- * Three choices worth explaining:
- *
- * - The money axis is logarithmic. Grosses in this set run from under a
- *   million to nearly three billion; on a linear axis the bottom two
- *   thirds of the films would be a single line of dots along the floor.
- * - Only films with a recorded gross can appear, and the caption says how
- *   many that leaves. A zero in TMDB means nobody filled the field in, not
- *   that the film made nothing, so those films are absent rather than
- *   plotted at the origin where they would invent a trend.
- * - The caption is computed from whatever is on screen, filters included,
- *   so it can never drift out of step with the chart above it.
- */
 const SuccessMatrix = ({ movies, genres }) => {
   const navigate = useNavigate();
   const [genre, setGenre] = useState("All");
@@ -166,8 +147,6 @@ const SuccessMatrix = ({ movies, genres }) => {
                   {points.map((movie) => (
                     <Cell
                       key={movie.id}
-                      /* the best reviewed are picked out in red; everything
-                         else recedes, so the eye reads the top band first */
                       fill={movie.rating >= 8 ? "#E50914" : "#d8d8d8"}
                       fillOpacity={movie.rating >= 8 ? 0.85 : 0.35}
                       stroke={movie.rating >= 8 ? "#ff5a62" : "transparent"}

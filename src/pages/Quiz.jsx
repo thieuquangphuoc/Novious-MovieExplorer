@@ -52,26 +52,6 @@ const Stat = ({ value, label }) => (
   </div>
 );
 
-/*
- * FRAME BY FRAME — one frame, one movie.
- *
- * A still from a Thriller or Adventure film sits under six tiles. Every
- * wrong guess, and every hint asked for, removes one. Six tiles, six
- * guesses, and the score falls the longer it takes.
- *
- * Two things the implementation is careful about:
- *
- * - Guesses are matched on TMDB id, never on what was typed. Titles are
- *   a minefield of punctuation and re-releases, and GuessInput therefore
- *   makes the player pick from the list rather than trusting free text.
- * - The answer is never in the DOM while a round is live. The backdrop is
- *   loaded up front, but it is covered by opaque tiles, and the title,
- *   poster and year are not rendered at all until the round ends.
- *
- * Daily picks one film per UTC day from a fixed rota, so everybody gets
- * the same puzzle and a refresh cannot reroll it. Unlimited draws a
- * random film from a random page and remembers what it has already used.
- */
 const Quiz = () => {
   const [mode, setMode] = useState("daily");
   // bumped to start a fresh film without changing mode
@@ -84,22 +64,12 @@ const Quiz = () => {
   const [guesses, setGuesses] = useState([]);
   const [status, setStatus] = useState("playing");   // playing | won | lost
 
-  /*
-   * The finished round, frozen at the moment it ended.
-   *
-   * It cannot be recomputed from openTiles afterwards: winning opens all
-   * six tiles so the still can be seen, so reading the count back gives
-   * six every time. A two-tile win was being announced as a six-tile one
-   * worth eighty points while the saved score correctly said 720.
-   */
   const [result, setResult] = useState(null);
 
   const [stats, setStats] = useState(readStats);
   const [sound, setSound] = useState(readSoundPreference);
   const [dailyDone, setDailyDone] = useState(() => readDailyProgress());
 
-  // the order tiles open in, fixed for the round so a re-render cannot
-  // change which one is next
   const tileOrder = useRef(shuffledTiles());
   const playedIds = useRef([]);
   const stopHeartbeat = useRef(null);
@@ -117,11 +87,6 @@ const Quiz = () => {
 
   useEffect(() => quiet, [quiet]);
 
-  /*
-   * The heartbeat under the last guess, started and stopped in one
-   * place. A loop like this left running after a round ends is the
-   * classic way to turn a nice touch into a bug nobody can silence.
-   */
   useEffect(() => {
     const shouldBeat = sound && !finished && !loading && movie && attemptsLeft === 1;
 
@@ -132,16 +97,6 @@ const Quiz = () => {
     }
   }, [sound, finished, loading, movie, attemptsLeft, quiet]);
 
-  /*
-   * Loading a round lives inside the effect rather than in a function the
-   * effect calls, because the first thing it does is set state — and
-   * state set synchronously in an effect body triggers a cascading
-   * render. Nested in `run`, those calls happen a tick later, which is
-   * both what React wants and what the loading state should do anyway.
-   *
-   * `round` is the handle the rest of the component pulls: bumping it
-   * re-runs this and starts a fresh film without duplicating any of it.
-   */
   useEffect(() => {
     let cancelled = false;
 
@@ -213,8 +168,6 @@ const Quiz = () => {
     setGuesses((current) => [...current, { id: picked.id, title: picked.title, correct }]);
 
     if (correct) {
-      // the winning tile count is what is already open, plus the one this
-      // guess would have cost — a first-guess win is worth a single tile
       endRound(true, Math.max(tilesOpen, 1));
       setOpenTiles(tileOrder.current.slice(0, TILES));
       return;

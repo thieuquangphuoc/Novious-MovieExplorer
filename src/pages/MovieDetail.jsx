@@ -23,17 +23,6 @@ const formatMoney = (amount) => {
   return `$${amount.toLocaleString("en-US")}`;
 };
 
-/*
- * The detail page for a single film: /movie/:id
- *
- * useParams reads the id out of the URL. The two API calls run in parallel
- * through Promise.all because neither depends on the other — awaiting them
- * in turn would take twice as long for nothing.
- *
- * The dependency array is [id]: when the visitor follows a link to another
- * film the id changes, the effect runs again and fresh data is loaded. With
- * [] the page would sit frozen on the first film it ever showed.
- */
 const MovieDetail = () => {
   const { id } = useParams();
 
@@ -81,7 +70,7 @@ const MovieDetail = () => {
 
   return (
     <div>
-      {/* ===== TOP: backdrop + poster + the main facts ===== */}
+      
       <section className="relative">
         {movie.backdrop_path && (
           <img
@@ -115,7 +104,6 @@ const MovieDetail = () => {
               <span>{formatRuntime(movie.runtime)}</span>
             </div>
 
-            {/* genre names only exist in the detail response, not in /trending */}
             <div className="mt-4 flex flex-wrap gap-2">
               {movie.genres?.map((genre) => (
                 <span
@@ -156,7 +144,7 @@ const MovieDetail = () => {
             </dl>
 
             <div className="mt-8 flex flex-wrap gap-3">
-              {/* only offered when TMDB actually has a video for this film */}
+              
               {trailerKey && (
                 <button
                   onClick={() => setShowTrailer(true)}
@@ -180,7 +168,6 @@ const MovieDetail = () => {
         </div>
       </section>
 
-      {/* ===== CAST ===== */}
       <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
         <h2 className="mb-6 text-xl font-bold text-white">Cast</h2>
 

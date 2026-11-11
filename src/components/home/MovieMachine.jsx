@@ -4,8 +4,6 @@ import decades from "../../data/decades";
 import PosterCard from "../movie/PosterCard";
 import ScrollProgressBar from "../common/ScrollProgressBar";
 
-// start on the present day rather than 1920, so the row opens with films
-// most visitors recognise and the slider reads as something to pull back
 const DEFAULT_INDEX = decades.length - 1;
 
 const Arrow = ({ direction, onClick, accent }) => (
@@ -27,32 +25,8 @@ const Arrow = ({ direction, onClick, accent }) => (
   </button>
 );
 
-/*
- * The Movie Machine: a hundred years of cinema on one slider.
- *
- * Dragging the handle changes two things at once. The row reloads with the
- * most popular films actually released in that decade, and the whole panel
- * repaints itself in that decade's colours, typeface and amount of film
- * grain — so 1940 arrives as cold noir blue in a serif, and 1980 as neon
- * magenta. Every one of those values comes from src/data/decades.js.
- *
- * Three implementation notes:
- *
- * - The gradient is keyed on the decade and fades in. A CSS gradient is a
- *   background-image, and background-image cannot be transitioned, so the
- *   layer is replaced and the new one animates in over the old colour.
- * - A `cancelled` flag guards the fetch. Dragging the slider fires a
- *   request per decade passed through, and without the guard a slow early
- *   response could land after a later one and leave the wrong films on
- *   screen.
- * - The slider is a real <input type="range">. Dragging, arrow keys, Home
- *   and End and screen-reader support all come free; only its appearance
- *   is redrawn, in index.css.
- */
 const MovieMachine = () => {
   const [index, setIndex] = useState(DEFAULT_INDEX);
-  // the hint is a teaching aid; once the visitor has used the slider it
-  // steps back rather than keeping on waving at them
   const [touched, setTouched] = useState(false);
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -96,7 +70,7 @@ const MovieMachine = () => {
       className="relative isolate overflow-hidden border-y border-white/10 py-14"
       style={{ "--accent": decade.accent }}
     >
-      {/* ===== DECADE BACKGROUND ===== */}
+      
       <div aria-hidden="true" className="absolute inset-0 -z-10">
         <div
           key={decade.start}
@@ -111,12 +85,10 @@ const MovieMachine = () => {
           style={{ opacity: decade.grain }}
         />
 
-        {/* melt the two edges into the page colour */}
         <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#141414] to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#141414] to-transparent" />
       </div>
 
-      {/* ===== HEADER ===== */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <p
           className="mb-1.5 text-xs font-semibold uppercase tracking-[0.25em]"
@@ -144,14 +116,8 @@ const MovieMachine = () => {
           {decade.blurb}
         </p>
 
-        {/* ===== SLIDER ===== */}
         <div className="mt-7">
-          {/*
-            Nobody drags a control they have not noticed. The line says what
-            to do, the arrows keep moving so the eye lands on them, and the
-            whole thing recedes to a third of its opacity the moment the
-            visitor actually uses the slider.
-          */}
+          
           <div
             className={`mb-2 flex items-center gap-2 text-xs transition-opacity duration-500 ${
               touched ? "opacity-30" : "opacity-100"
@@ -184,8 +150,6 @@ const MovieMachine = () => {
             style={{ "--accent": decade.accent }}
           />
 
-          {/* a notch per stop, so the rail looks like something with steps
-              rather than a smooth line that happens to snap */}
           <div aria-hidden="true" className="-mt-1.5 flex justify-between px-[9px]">
             {decades.map((item, i) => (
               <span
@@ -196,7 +160,6 @@ const MovieMachine = () => {
             ))}
           </div>
 
-          {/* the years are buttons too, for anyone who would rather jump */}
           <div className="mt-1 flex justify-between">
             {decades.map((item, i) => (
               <button
@@ -218,7 +181,6 @@ const MovieMachine = () => {
         </div>
       </div>
 
-      {/* ===== FILM ROW ===== */}
       <div className="group/strip relative mt-8">
         <div
           ref={trackRef}

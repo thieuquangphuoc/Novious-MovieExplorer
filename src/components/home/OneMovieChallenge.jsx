@@ -9,20 +9,10 @@ import { startSearchHum, playStageBlip, playReveal, playMiss } from "../../servi
 const BACKDROP_BASE = "https://image.tmdb.org/t/p/original";
 const POSTER_BASE = "https://image.tmdb.org/t/p/w500";
 
-// every state of the right-hand column is held to this, so the panel does
-// not resize between searching and the answer
 const PANEL_HEIGHT = "min-h-[24rem]";
 
 const SOUND_KEY = "novious-challenge-sound";
 
-/*
- * Read the saved sound preference once, as the initial state.
- *
- * This used to be an effect that called setSound after mount, which meant
- * the section rendered with sound on and then corrected itself — and React
- * rightly complains about setting state synchronously in an effect. A lazy
- * initialiser runs once, before the first render, and never again.
- */
 const readSoundPreference = () => {
   try {
     const saved = localStorage.getItem(SOUND_KEY);
@@ -60,23 +50,6 @@ const OptionButton = ({ option, selected, onClick }) => (
   </button>
 );
 
-/*
- * The ONE Movie Challenge — three questions, one film, no scrolling.
- *
- * The point of the section is the wait. A recommendation that lands the
- * instant you click reads as a random pick; the same recommendation after
- * a few seconds of visible searching reads as a decision. So the search
- * always runs its full animation, and the film is revealed in pieces
- * afterwards: backdrop, then poster, then the words.
- *
- * Two rules keep that honest. The animation is a floor, not a fake: if
- * TMDB is slower than the animation, the search simply keeps running until
- * the data is in. And an error is never dressed up as a search — it breaks
- * the sequence immediately and says so.
- *
- * `seen` remembers everything already offered, so Give Me Another keeps
- * the same three answers but cannot return the same film twice.
- */
 const OneMovieChallenge = () => {
   const [answers, setAnswers] = useState({ time: null, mood: null, style: null });
   const [phase, setPhase] = useState("form");   // form | searching | result | error
@@ -100,8 +73,6 @@ const OneMovieChallenge = () => {
     });
   };
 
-  // every timer started by a search, so none of them can fire into a
-  // component that has gone away or into a search already abandoned
   const timers = useRef([]);
   const runId = useRef(0);
   const stopHum = useRef(null);
@@ -148,8 +119,6 @@ const OneMovieChallenge = () => {
       );
     });
 
-    // the animation is a minimum, not a disguise: if TMDB takes longer the
-    // search keeps running rather than cutting to an empty result
     const floor = wait(SEARCH_DURATION);
 
     try {
@@ -214,24 +183,13 @@ const OneMovieChallenge = () => {
 
   return (
     <section className="relative isolate overflow-hidden border-y border-white/10 py-16">
-      {/*
-        ===== BACKGROUND =====
-        Fixed on purpose. An earlier version blurred the chosen film's
-        backdrop across the whole band, which meant the section changed
-        colour with every answer — the page flickered between green, blue
-        and orange as the visitor pressed Give me another, and the result
-        card had to compete with a copy of its own artwork. The film's
-        colour now belongs to the card alone; the band behind it stays put.
-      */}
+      
       <div aria-hidden="true" className="absolute inset-0 -z-10 overflow-hidden bg-[#101010]">
-        {/* three slow drifts on loops of 23s, 31s and 27s — lengths that do
-            not divide into each other, so the pattern never visibly repeats */}
+        
         <div className="drift-one absolute -left-40 top-[-20%] h-[26rem] w-[26rem] rounded-full bg-[#E50914]/25 blur-[130px]" />
         <div className="drift-two absolute right-[-10%] top-[10%] h-[24rem] w-[24rem] rounded-full bg-[#b4531a]/22 blur-[140px]" />
         <div className="drift-three absolute bottom-[-25%] left-[35%] h-[22rem] w-[22rem] rounded-full bg-[#2b4a63]/26 blur-[130px]" />
 
-        {/* sparks: each one blooms and fades on its own clock, in its own
-            corner, so there is no direction or rhythm to get used to */}
         {SPARKS.map((spark) => (
           <div
             key={spark.id}
@@ -264,7 +222,7 @@ const OneMovieChallenge = () => {
         </p>
 
         <div className="mt-8 grid grid-cols-1 items-start gap-8 lg:grid-cols-3">
-          {/* ===== LEFT: THE QUESTIONS ===== */}
+          
           <div className="space-y-6 lg:col-span-1">
             {QUESTIONS.map((question, number) => (
               <fieldset key={question.id}>
@@ -330,7 +288,6 @@ const OneMovieChallenge = () => {
             )}
           </div>
 
-          {/* ===== RIGHT: THE ANSWER ===== */}
           <div className="lg:col-span-2">
             {phase === "form" && (
               <div className={`flex ${PANEL_HEIGHT} flex-col items-center justify-center rounded-xl border border-dashed border-white/12 p-10 text-center`}>
@@ -344,7 +301,7 @@ const OneMovieChallenge = () => {
 
             {phase === "searching" && (
               <div className={`relative flex ${PANEL_HEIGHT} items-center justify-center overflow-hidden rounded-xl border border-white/12 bg-black/40`}>
-                {/* the projector sweep */}
+                
                 <div
                   aria-hidden="true"
                   className="challenge-scan absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-[#E50914]/15 to-transparent"
@@ -447,12 +404,11 @@ const OneMovieChallenge = () => {
                       {result.overview || "No description available."}
                     </p>
 
-                    {/* ===== ACTIONS ===== */}
                     <div
                       style={{ animationDelay: "1400ms" }}
                       className="challenge-rise mt-5 flex flex-wrap gap-3"
                     >
-                      {/* only offered when TMDB actually has a video for this film */}
+                      
                       {trailerKey ? (
                         <button
                           onClick={() => setShowTrailer(true)}

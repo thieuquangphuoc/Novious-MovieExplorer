@@ -1,17 +1,5 @@
 const POSTER_BASE = "https://image.tmdb.org/t/p/w154";
 
-/*
- * The hover card used by every chart on this page.
- *
- * A scatter plot of a hundred dots is unreadable on its own — a point at
- * (8.4, $900M) means nothing until you can see which film it is. So the
- * tooltip leads with the poster: recognising the artwork is faster than
- * reading a title, and it turns the chart from a shape into a set of
- * films you know.
- *
- * `rows` lets each chart name its own numbers, since what matters on the
- * money chart is not what matters on the gems chart.
- */
 const MovieTooltip = ({ active, payload, rows }) => {
   if (!active || !payload?.length) return null;
 

@@ -1,34 +1,6 @@
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
 
-/*
- * Full-screen player for a YouTube trailer.
- *
- * Rendering nothing when there is no key keeps every caller simple: they
- * hold one piece of state for the trailer being watched and pass it
- * straight in, instead of guarding the component with a conditional.
- *
- * Two details that are easy to miss:
- *
- * - The page behind is frozen while the player is open (overflow hidden on
- *   <body>), otherwise scrolling the wheel scrolls the film rows behind the
- *   dialog. The cleanup puts the old value back rather than hard-coding
- *   "auto", so it cannot clobber a different setting later on.
- * - Escape closes it. A dialog that can only be dismissed with the mouse is
- *   a trap for anyone on a keyboard.
- *
- * The backdrop closes on click, but the frame around the video calls
- * stopPropagation so clicking the player itself does not count as clicking
- * the backdrop.
- *
- * The whole thing is sent to <body> through a portal rather than rendered
- * where it is written. Every section that opens a trailer carries
- * `isolate`, which creates a stacking context, and z-index inside one of
- * those only ranks against its own siblings — so the player sat at z-100
- * inside the trailer strip and the next section down the page still
- * painted straight over it. A portal lifts it out of all of them, and it
- * fixes all three callers at once.
- */
 const TrailerModal = ({ trailerKey, title, onClose }) => {
   useEffect(() => {
     if (!trailerKey) return;

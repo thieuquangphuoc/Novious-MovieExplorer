@@ -7,12 +7,6 @@ import ScrollProgressBar from "../common/ScrollProgressBar";
 const CARD_BACKDROP = "https://image.tmdb.org/t/p/w780";
 const AMBIENT_BACKDROP = "https://image.tmdb.org/t/p/w780";
 
-/*
- * TMDB has no "for rent" or "on TV" list for films, so the tabs are the
- * four film lists it does publish. Each one answers a different question a
- * visitor actually asks: what is everyone watching, what is on at the
- * cinema, what is coming, and what is worth it.
- */
 const TABS = [
   { id: "popular", label: "Popular" },
   { id: "now_playing", label: "In Theaters" },
@@ -44,29 +38,6 @@ const Arrow = ({ direction, onClick }) => (
   </button>
 );
 
-/*
- * The Latest Trailers strip.
- *
- * This band is meant to feel like a different room from the poster rows
- * above it, without becoming a box pasted onto the page. Three things do
- * that work:
- *
- * - An ambient background: the backdrop of whichever film is under the
- *   pointer, blurred hard and dimmed almost to black, so the band quietly
- *   takes on the colour of what you are looking at. Before anything is
- *   hovered it borrows the first film's.
- * - Hairline borders top and bottom, plus a soft red glow, to mark the band
- *   as its own stretch of page.
- * - A mask on the strip, so cards fade out at the two ends instead of
- *   being chopped off. It has to be a mask rather than a coloured overlay:
- *   an overlay would have to match the background, and the background here
- *   changes with every film.
- *
- * Switching tab refetches, because a film's trailer needs its own request
- * and pulling all four lists up front would mean roughly fifty requests on
- * a page the visitor may never scroll to. Results are cached per tab, so
- * returning to one already seen is instant and costs nothing.
- */
 const TrailerSection = () => {
   const [activeTab, setActiveTab] = useState(TABS[0].id);
   // what is on screen right now — kept through a tab change, not cleared
@@ -77,24 +48,8 @@ const TrailerSection = () => {
 
   const trackRef = useRef(null);
 
-  // the cache is kept in a ref as well, so the effect can check it without
-  // listing it as a dependency and re-running every time it is written to
   const loaded = useRef({});
 
-  /*
-   * Load the tab, but never empty the strip to do it.
-   *
-   * The obvious version rendered `cache[activeTab] || []`, which is empty
-   * the instant an uncached tab is picked: the cards became grey blocks,
-   * the ambient backdrop vanished, and the arrows and the scrollbar
-   * unmounted — taking their height with them, so the rest of the page
-   * jumped. It read as the whole section reloading, and it only stopped
-   * once every tab had been visited and cached.
-   *
-   * So the previous tab's cards stay on screen, dimmed, until the new ones
-   * are ready. Skeletons are now only for the very first load, when there
-   * is genuinely nothing to keep.
-   */
   useEffect(() => {
     const cached = loaded.current[activeTab];
     if (cached) {
@@ -133,7 +88,7 @@ const TrailerSection = () => {
 
   return (
     <section className="relative isolate overflow-hidden border-y border-white/10 py-14">
-      {/* ===== AMBIENT BACKGROUND ===== */}
+      
       <div aria-hidden="true" className="absolute inset-0 -z-10">
         {ambient && (
           <img
@@ -144,20 +99,14 @@ const TrailerSection = () => {
           />
         )}
 
-        {/* hold it back far enough that white text never has to fight it */}
         <div className="absolute inset-0 bg-[#141414]/70" />
-        {/* a red glow in one corner, so the band is not a flat rectangle */}
+        
         <div className="absolute -left-40 -top-40 h-96 w-96 rounded-full bg-[#E50914]/25 blur-[120px]" />
 
-        {/* Melt only the two edges into the page colour.
-            A single full-height gradient was covering the whole band, which
-            left the ambient image showing through nothing but a thin strip
-            in the middle — all that work for an effect nobody could see. */}
         <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#141414] to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#141414] to-transparent" />
       </div>
 
-      {/* ===== HEADER ===== */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -189,7 +138,6 @@ const TrailerSection = () => {
         </div>
       </div>
 
-      {/* ===== STRIP ===== */}
       <div className="group/strip relative mt-8">
         <div
           ref={trackRef}
@@ -219,9 +167,8 @@ const TrailerSection = () => {
                       className="aspect-video w-full object-cover transition-transform duration-700 group-hover/card:scale-[1.08]"
                     />
 
-                    {/* darkened by default, clears as the card is hovered */}
                     <div className="absolute inset-0 bg-black/35 transition-colors duration-500 group-hover/card:bg-black/10" />
-                    {/* permanent scrim, so the caption is readable over any still */}
+                    
                     <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black via-black/70 to-transparent" />
 
                     <span className="absolute inset-0 flex items-center justify-center">
@@ -241,7 +188,6 @@ const TrailerSection = () => {
                       </div>
                     </div>
 
-                    {/* thin accent that wipes across the foot of the card on hover */}
                     <span className="absolute inset-x-0 bottom-0 h-0.5 origin-left scale-x-0 bg-[#E50914] transition-transform duration-500 group-hover/card:scale-x-100" />
                   </div>
                 </button>
@@ -254,14 +200,11 @@ const TrailerSection = () => {
           )}
         </div>
 
-        {/* tied to shown, not to loading: unmounting these mid-load removed
-            their height and shunted the rest of the page upwards */}
         {shown.length > 0 && (
           <>
             <Arrow direction={-1} onClick={() => scrollByPage(-1)} />
             <Arrow direction={1} onClick={() => scrollByPage(1)} />
 
-            {/* sits outside the masked strip, or its own ends would fade too */}
             <ScrollProgressBar
               trackRef={trackRef}
               watch={activeTab}

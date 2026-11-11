@@ -1,54 +1,12 @@
 import { getMovieList, getTrending, getMovieDetails, getGenres } from "./api";
 
-/*
- * ====================================================================
- *  THE DATASET BEHIND CINEMA DECODED
- * ====================================================================
- *
- * Everything the Insights page draws comes from one dataset, built once
- * and reused. This file assembles it and derives the statistics; the
- * components only lay them out.
- *
- * Why it has to be built rather than fetched:
- *
- * TMDB's list endpoints (/popular, /top_rated, /trending) return twenty
- * films each with a summary — title, poster, rating, vote count. They do
- * NOT return budget, revenue, runtime or production countries. Those four
- * only exist on /movie/{id}, one request per film. Half of this page is
- * about money, so the page has no choice but to make that call for every
- * film in the set.
- *
- * Eighty-odd requests is a lot to repeat, so the whole thing is cached in
- * a module-level promise: the first component to ask starts the work, and
- * every later visit to the page — including navigating away and back —
- * gets the same resolved array without touching the network again.
- */
+// THE DATASET BEHIND CINEMA DECODED
 
 const TOP_RATED_PAGES = 2;
 const POPULAR_PAGES = 2;
 
-/*
- * Films with a recorded budget below this are excluded from anything that
- * divides by budget.
- *
- * TMDB's budget field is community-entered and frequently wrong at the low
- * end — a film will carry a placeholder of a few thousand dollars against
- * a real worldwide gross, which produces a "return multiple" of 700x and
- * swamps every honest number on the chart. One million is low enough to
- * keep genuinely cheap films and high enough to drop the typos.
- */
 export const MIN_CREDIBLE_BUDGET = 1_000_000;
 
-/*
- * The same problem at the other end: a recorded worldwide gross this
- * small is a placeholder, not a result.
- *
- * One film in this set carries a gross of seven dollars. On a logarithmic
- * money axis that single point drags the scale down three decades, so the
- * fifty-six real films are squeezed into the top third of the chart and
- * the rest is empty space. A hundred thousand is below any film that
- * actually reached a cinema and above every typo.
- */
 export const MIN_CREDIBLE_REVENUE = 100_000;
 
 // Films whose money figures can be plotted without distorting the scale.
@@ -57,13 +15,6 @@ export const hasCredibleMoney = (movie) =>
 
 let cache = null;
 
-/*
- * Normalise one TMDB detail response into the shape the charts want.
- *
- * Done once here rather than in each chart: a scatter plot should not be
- * parsing dates, and a tooltip should not have to know that `genres` is a
- * list of objects on a detail response but a list of ids on a list one.
- */
 const shape = (movie) => {
   const year = movie.release_date ? Number(movie.release_date.slice(0, 4)) : null;
 
@@ -87,15 +38,6 @@ const shape = (movie) => {
   };
 };
 
-/*
- * Build the dataset.
- *
- * Three lists are merged — the best rated of all time, what is popular now
- * and what is trending this week — because any one of them alone skews the
- * answers. Top rated is all old classics with modest budgets; popular is
- * all current blockbusters. Together they cover seventy years and both
- * ends of the money.
- */
 export const loadInsightDataset = () => {
   if (cache) return cache;
 
@@ -132,10 +74,7 @@ export const loadInsightDataset = () => {
   return cache;
 };
 
-/* ====================================================================
- *  DERIVED STATISTICS
- *  Pure functions over the dataset. No fetching, no React.
- * ==================================================================== */
+// DERIVED STATISTICS
 
 export const headlineStats = (movies) => {
   const withMoney = movies.filter((m) => m.revenue);
@@ -178,14 +117,6 @@ export const genresInSet = (movies) => {
     .map(([name, count]) => ({ name, count }));
 };
 
-/*
- * Return multiple: worldwide gross divided by production budget.
- *
- * This is NOT profit. It ignores marketing, which on a wide release can
- * match the production budget, and the roughly half of every ticket that
- * stays with the cinema. A film needs somewhere above 2x just to break
- * even, which is why the chart draws that line rather than 1x.
- */
 export const withReturnMultiple = (movies) =>
   movies
     .filter(
@@ -198,13 +129,6 @@ export const withReturnMultiple = (movies) =>
     .map((m) => ({ ...m, multiple: m.revenue / m.budget }))
     .sort((a, b) => b.multiple - a.multiple);
 
-/*
- * Hidden gems: rated well, seen by comparatively few.
- *
- * The vote threshold is a quartile of the set rather than a fixed number,
- * so the definition travels — on a dataset of blockbusters "few votes"
- * means something very different than on a dataset of festival films.
- */
 export const hiddenGems = (movies, { minRating = 7.5, limit = 8 } = {}) => {
   const voteCounts = movies.map((m) => m.votes).filter(Boolean);
   if (voteCounts.length === 0) return { gems: [], voteThreshold: 0 };
@@ -220,14 +144,6 @@ export const hiddenGems = (movies, { minRating = 7.5, limit = 8 } = {}) => {
   return { gems, voteThreshold };
 };
 
-/*
- * Share of each genre, decade by decade.
- *
- * Counted by tag, not by film: a film listed as Action and Adventure adds
- * one to each. So the percentages answer "of all the genre labels in this
- * decade, how many were Action", which is the honest reading of a dataset
- * where films carry several genres at once.
- */
 export const genreByDecade = (movies, genreNames) => {
   const decades = [...new Set(movies.map((m) => m.decade).filter(Boolean))].sort(
     (a, b) => a - b

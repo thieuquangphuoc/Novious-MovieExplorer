@@ -5,24 +5,6 @@ import StarRating from "../common/StarRating";
 
 const POSTER_BASE = "https://image.tmdb.org/t/p/w342";
 
-/*
- * HIDDEN GEMS — well reviewed, barely seen.
- *
- * This section is deliberately not a chart. The point of it is the films
- * themselves, and a dot in the corner of a scatter plot does not make
- * anybody want to watch anything; a wall of posters does.
- *
- * The definition of "barely seen" is relative, not a fixed vote count.
- * The threshold is the 40th percentile of vote counts in this dataset, so
- * it means the same thing — bottom of the pack, here — whether the set is
- * full of blockbusters or festival films. hiddenGems() in
- * services/insights.js does that calculation.
- *
- * The first gem is given the whole left column at full size. A grid of
- * identical tiles is exactly the template look this page is trying to
- * avoid, and one film being obviously the pick of them reads as an
- * editor's choice rather than a query result.
- */
 const HiddenGems = ({ movies }) => {
   const { gems, voteThreshold } = useMemo(() => hiddenGems(movies, { limit: 7 }), [movies]);
 
@@ -40,7 +22,7 @@ const HiddenGems = ({ movies }) => {
   return (
     <div>
       <div className="grid gap-8 lg:grid-cols-[minmax(0,22rem)_1fr]">
-        {/* ===== THE PICK ===== */}
+        
         <Link to={`/movie/${lead.id}`} className="group block">
           <div className="relative overflow-hidden">
             <img
@@ -66,7 +48,6 @@ const HiddenGems = ({ movies }) => {
           </div>
         </Link>
 
-        {/* ===== THE REST ===== */}
         <div>
           <ul className="divide-y divide-white/10 border-y border-white/10">
             {rest.map((movie, index) => (

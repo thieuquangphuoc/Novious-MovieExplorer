@@ -17,7 +17,6 @@ const eachElement = [
   { path: "/movie/:id", element: <MovieDetail/>},
 ];
 
-
 const App = () => {
   return (
     <div className="min-h-screen bg-[#141414]">

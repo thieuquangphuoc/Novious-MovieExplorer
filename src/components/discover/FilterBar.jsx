@@ -1,9 +1,3 @@
-/*
- * Decades offered in the year filter. Built from a fixed start rather
- * than from the data, because the filter asks TMDB for films rather than
- * narrowing a list already on screen — it has to be able to request a
- * decade the current results do not contain.
- */
 const DECADES = [1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020];
 
 const SORTS = [
@@ -18,16 +12,6 @@ const RATINGS = [0, 6, 7, 8];
 
 const LABEL = "text-[10px] uppercase tracking-[0.18em] text-neutral-500";
 
-/*
- * Every block in the top row is the same two-part shape — caption above,
- * control below — so their baselines line up without anyone nudging them.
- *
- * The previous version aligned the row with items-end and then pushed the
- * film count out with ml-auto and a pb-2, which left it eight pixels
- * above the selects and a four-hundred-pixel hole in the middle of the
- * bar. Giving the count the same shape as the controls fixes the
- * alignment by construction rather than by compensation.
- */
 const Block = ({ label, children }) => (
   <div className="flex flex-col gap-1.5">
     <span className={LABEL}>{label}</span>
@@ -38,12 +22,6 @@ const Block = ({ label, children }) => (
 const CONTROL =
   "h-10 border border-white/15 bg-[#161616] px-3 text-sm text-neutral-200 outline-none transition-colors hover:border-white/30 focus:border-[#E50914]";
 
-/*
- * min-w keeps the three dropdowns close in width. Left to size
- * themselves they came out 163, 123 and 115 pixels wide, which put each
- * chevron a different distance from its label and made a tidy row look
- * accidental.
- */
 const SELECT = `${CONTROL} select-field min-w-[11rem] cursor-pointer`;
 
 const ShuffleIcon = () => (
@@ -56,20 +34,6 @@ const ShuffleIcon = () => (
   </svg>
 );
 
-/*
- * The filter bar on Discover.
- *
- * Genres are multi-select chips rather than a dropdown: picking two or
- * three is the normal case, and a dropdown hides both the options and
- * what is currently on. Everything else is a select, because those are
- * one-of-many choices and a row of chips for eight decades would take
- * more room than the results.
- *
- * `searching` is true while a text search is on screen. TMDB's /search
- * endpoint accepts no filters at all, so in that mode the filters are
- * applied to the results in the browser instead, and the bar says so —
- * silently changing what a control means is worse than explaining it.
- */
 const FilterBar = ({
   value,
   onChange,
@@ -98,7 +62,7 @@ const FilterBar = ({
   return (
     <div className="border-y border-white/10 bg-[#101010]">
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        {/* ===== CONTROLS ===== */}
+        
         <div className="flex flex-wrap items-end gap-x-5 gap-y-5">
           <Block label="Sort by">
             <select
@@ -146,8 +110,6 @@ const FilterBar = ({
             </select>
           </Block>
 
-          {/* a thin rule rather than empty space, so the row reads as two
-              groups instead of two things drifting apart */}
           <div className="hidden h-10 self-end border-l border-white/10 lg:block" />
 
           <Block label="Matches">
@@ -181,7 +143,6 @@ const FilterBar = ({
           )}
         </div>
 
-        {/* ===== GENRES ===== */}
         <div className="mt-6 border-t border-white/10 pt-5">
           <p className={`${LABEL} mb-2.5`}>Genre</p>
 

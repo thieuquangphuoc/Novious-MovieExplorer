@@ -15,23 +15,6 @@ const GENRE_COLOURS = ["#E50914", "#f0a04b", "#4fd6c0", "#7aa6ff", "#c9a0ff"];
 
 const axisStyle = { fill: "#6b6b6b", fontSize: 11 };
 
-/*
- * GENRE WARS — what each decade was making.
- *
- * Share of genre tags by decade, stacked. Share rather than counts,
- * because the dataset is not evenly spread across time: there are far
- * more recent films in it than films from the sixties, so raw counts
- * would only redraw that imbalance.
- *
- * Counted by tag, not by film. A film listed as Action and Adventure adds
- * one to each, so a decade's bars answer "of all the genre labels used in
- * this decade, what fraction were Action" — which is the only honest
- * reading when films carry several genres at once. The percentages do not
- * sum to 100 because only the five most common genres are drawn.
- *
- * Decades holding very few films are dropped: a decade with three films
- * in it produces swings of thirty percentage points that mean nothing.
- */
 const MIN_FILMS_PER_DECADE = 3;
 
 const GenreWars = ({ movies, genres }) => {
@@ -78,7 +61,7 @@ const GenreWars = ({ movies, genres }) => {
 
   return (
     <div>
-      {/* the legend doubles as the control: click a genre to drop it out */}
+      
       <div className="mb-5 flex flex-wrap gap-4">
         {topGenres.map((name, i) => {
           const off = hidden.includes(name);

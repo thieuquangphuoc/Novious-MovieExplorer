@@ -8,25 +8,6 @@ const navbarContent = [
     { path: "/insights", title: "Insights" }
 ];
 
-/*
- * Navigation bar.
- *
- * It is fixed and fully transparent at the top of a page, so it floats over
- * the hero artwork instead of cutting a black band across it. A soft
- * top-down gradient is the only backing: enough to keep white text legible
- * over a bright still, invisible as a bar.
- *
- * Once the page scrolls past the first few pixels the bar turns solid, with
- * a blur and a hairline border. Without that it would end up as white text
- * floating over poster rows further down the page.
- *
- * NavLink hands us isActive, which marks the current page in red so the
- * visitor always knows where they are.
- *
- * On narrow screens the two rows stack; from sm upwards they sit side by
- * side. Forcing a single row at every width used to glue the logo to the
- * menu on a phone.
- */
 export const NavBar = () => {
     const [scrolled, setScrolled] = useState(false);
 
@@ -50,9 +31,7 @@ export const NavBar = () => {
                     to="/"
                     className="group flex items-center gap-2.5 text-white transition-colors hover:text-[#E50914]"
                 >
-                    {/* BASE_URL, not a bare "/": vite.config.js serves the app from
-                        /Novious-MovieExplorer/, and Vite only rewrites absolute paths
-                        inside index.html, never inside JSX */}
+                    
                     <img
                         src={`${import.meta.env.BASE_URL}logo-96.png`}
                         alt=""

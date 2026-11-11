@@ -11,27 +11,6 @@ import BoxOfficeDNA from "../components/insights/BoxOfficeDNA";
 import HiddenGems from "../components/insights/HiddenGems";
 import GenreWars from "../components/insights/GenreWars";
 
-/*
- * CINEMA DECODED
- *
- * The page is built as an article rather than a dashboard. There are no
- * cards: sections are separated by a hairline and a lot of space, each
- * one is numbered, each one asks a question in its heading and answers it
- * in a caption written from the data underneath it. Charts are different
- * sizes because they carry different weight — the two that need room get
- * the full width, the section that is really about the films themselves
- * is posters rather than a plot.
- *
- * Every number on the page, including the ones in the prose, is computed
- * from the dataset at render time. Nothing is written down by hand, so
- * nothing can quietly go stale.
- *
- * The whole page shares one dataset, built once and cached in
- * services/insights.js. It costs eighty-odd requests to assemble, because
- * budget, revenue, runtime and country only exist on TMDB's per-film
- * endpoint — so it is paid for once per session, not once per chart.
- */
-
 const Section = ({ number, kicker, title, children }) => (
   <section className="rule-top py-16 sm:py-20">
     <Reveal>
@@ -54,7 +33,7 @@ const Stat = ({ value, label, wide = false }) => (
   </div>
 );
 
-/* A page-shaped placeholder, so the layout does not jump when data lands. */
+// A page-shaped placeholder, so the layout does not jump when data lands.
 const Skeleton = () => (
   <div className="mx-auto max-w-7xl px-4 pb-24 pt-32 sm:px-6 lg:px-8">
     <div className="decoded-skeleton h-4 w-40" />
@@ -128,7 +107,7 @@ const Insights = () => {
 
   return (
     <div className="mx-auto max-w-7xl px-4 pb-24 pt-32 sm:px-6 lg:px-8">
-      {/* ===== MASTHEAD ===== */}
+      
       <Reveal>
         <p className="text-[11px] uppercase tracking-[0.35em] text-[#E50914]">
           Novious Intelligence
@@ -147,7 +126,6 @@ const Insights = () => {
         </p>
       </Reveal>
 
-      {/* ===== HEADLINE FIGURES ===== */}
       <Reveal delay={120}>
         <div className="mt-14 grid grid-cols-2 gap-x-8 gap-y-10 border-t border-white/10 pt-10 sm:grid-cols-4">
           <Stat value={<CountUp end={stats.filmCount} duration={1.4} />} label="Films read" />
@@ -176,7 +154,6 @@ const Insights = () => {
         </p>
       </Reveal>
 
-      {/* ===== 01 ===== */}
       <Section
         number="01"
         kicker="The Success Matrix"
@@ -185,7 +162,6 @@ const Insights = () => {
         <SuccessMatrix movies={movies} genres={genres} />
       </Section>
 
-      {/* ===== 02 ===== */}
       <Section
         number="02"
         kicker="Box Office DNA"
@@ -194,7 +170,6 @@ const Insights = () => {
         <BoxOfficeDNA movies={movies} />
       </Section>
 
-      {/* ===== 03 ===== */}
       <Section
         number="03"
         kicker="Hidden Gems"
@@ -203,7 +178,6 @@ const Insights = () => {
         <HiddenGems movies={movies} />
       </Section>
 
-      {/* ===== 04 ===== */}
       <Section
         number="04"
         kicker="Genre Wars"

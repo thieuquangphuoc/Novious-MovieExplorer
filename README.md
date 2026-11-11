@@ -1,8 +1,8 @@
-# NOVIOUS · MOVIEEXPLORER
-### A Cinematic Movie Discovery Platform — React 19 · TMDB API · Zero-Asset Audio
+# NOVIOUS - MOVIE EXPLORER
+### A Cinematic Movie Discovery Platform | React 19 - TMDB API
 
 > A **single-page application** built to treat film data the way a magazine treats film: as something worth designing for.
-> Five routes, 43 source files and roughly **7,100 lines** of hand-written React, CSS and vanilla JavaScript — with no component library, no UI kit, no chart template and **not a single audio file**.
+> Five routes, 40 source files and roughly **5,600 lines** of React, CSS and vanilla JavaScript, with no component library, no UI kit, no chart template and **not a single audio file**.
 > Every poster, rating, budget figure and sound in this project is either fetched live from TMDB or synthesised in the browser at runtime.
 
 <p align="center">
@@ -42,11 +42,11 @@
 | Information | Details |
 |-------------|---------|
 | **Objective** | Build a complete, production-shaped movie discovery SPA on a live public API |
-| **Scope** | 5 routes · 26 components · 4 service modules · 4 static data tables |
+| **Scope** | 5 routes · 23 components · 4 service modules · 4 static data tables |
 | **Data source** | The Movie Database (TMDB) REST API v3 — live, never mocked |
 | **HTTP layer** | Native `fetch` + `async`/`await` — **no `axios`, no wrapper library** |
 | **State management** | React hooks only — no Redux, no Zustand, no Context provider tree |
-| **Styling** | Tailwind CSS v4 utilities + 610 lines of hand-written CSS keyframes |
+| **Styling** | Tailwind CSS v4 utilities + 446 lines of hand-written CSS keyframes |
 | **Audio** | Web Audio API oscillators — **zero audio files, zero licensing** |
 | **Charts** | Recharts, re-skinned from scratch |
 | **Build & deploy** | Vite 8 (Rolldown) → GitHub Pages |
@@ -125,18 +125,17 @@ Novious-MovieExplorer/
 ├── .env.local                      # VITE_TMDB_KEY (gitignored — never committed)
 │
 ├── assets/
-│   └── preview-novious.gif         # Demo recording embedded in this document
+│   └── preview.gif                 # Demo recording embedded in this document
 │
 ├── public/                         # STATIC ASSETS (copied verbatim to the build)
 │   ├── logo-design.png             # Original logo artwork, 2000×2000
 │   ├── logo-96.png                 # 96px build used in the navbar & favicon
-│   ├── apple-touch-icon.png        # 180×180 iOS home-screen icon
-│   └── icons.svg                   # Inline SVG sprite
+│   └── apple-touch-icon.png        # 180×180 iOS home-screen icon
 │
 └── src/
     ├── main.jsx                    # ReactDOM.createRoot + HashRouter mount
     ├── App.jsx                     # Route table, NavBar & Footer shell
-    ├── index.css                   # 610 lines — @theme tokens + every keyframe
+    ├── index.css                   # 446 lines — @theme tokens + every keyframe
     │
     ├── pages/                      # ROUTE-LEVEL COMPONENTS
     │   ├── Home.jsx                # Hero carousel, trailers, challenge, time machine
@@ -165,9 +164,7 @@ Novious-MovieExplorer/
     │   │   ├── TrailerSection.jsx  # Tabbed trailer strip with mask-faded edges
     │   │   ├── OneMovieChallenge.jsx # 3-question recommender + audio search sequence
     │   │   ├── MovieMachine.jsx    # Decade slider that restyles itself per era
-    │   │   ├── ScrollRow.jsx       # Horizontal poster rail with arrow controls
-    │   │   ├── MovieRow.jsx        # [parked] Infinite marquee row
-    │   │   └── TopTenRow.jsx       # [parked] Oversized numeral ranking row
+    │   │   └── ScrollRow.jsx       # Horizontal poster rail with arrow controls
     │   │
     │   ├── discover/               # DISCOVER PAGE
     │   │   ├── PosterWall.jsx      # Drifting poster-grid hero background
@@ -180,8 +177,7 @@ Novious-MovieExplorer/
     │   │   ├── GenreWars.jsx       # Genre share by decade, stacked area
     │   │   ├── MovieTooltip.jsx    # Shared custom tooltip for all charts
     │   │   ├── Reveal.jsx          # IntersectionObserver scroll-reveal wrapper
-    │   │   ├── format.js           # money() formatter — isolated for Fast Refresh
-    │   │   └── InsightSection.jsx  # [parked] Alternate section layout
+    │   │   └── format.js           # money() formatter — isolated for Fast Refresh
     │   │
     │   └── quiz/                   # GAME COMPONENTS
     │       ├── FrameBoard.jsx      # 3×2 tile mask over a 16:9 film still
@@ -229,7 +225,7 @@ A concrete consequence: `MovieMachine.jsx` contains **no colour values at all**.
 
 ## 4. Service Layer Specifications
 
-### `services/api.js` — TMDB access layer · 350 lines
+### `services/api.js` — TMDB access layer · 236 lines
 
 ```text
 api.js
@@ -271,7 +267,7 @@ Four pages fetched serially cost four round trips; fetched in parallel they cost
 
 This is the single most common TMDB mistake, and it fails silently — the request returns `200 OK` with an almost empty result set.
 
-### `services/insights.js` — dataset & statistics · 249 lines
+### `services/insights.js` — dataset & statistics · 165 lines
 
 ```text
 insights.js
@@ -279,7 +275,7 @@ insights.js
 ├── MIN_CREDIBLE_REVENUE =   100_000        Data-quality floor
 ├── hasCredibleMoney(movie)                 Predicate used by every money chart
 │
-├── loadInsightDataset()                    Module-level promise cache → 81 films
+├── loadInsightDataset()                    Module-level promise cache → ~80 films
 ├── headlineStats(movies)                   Count, mean rating, coverage ratio
 ├── genresInSet(movies)                     Distinct genres present
 ├── withReturnMultiple(movies)              Adds revenue / budget to each record
@@ -295,14 +291,17 @@ TMDB's *list* endpoints do not return financial data. `budget`, `revenue`, `runt
 Phase 1 — breadth      top_rated (2 pages)
                      + popular   (2 pages)        → ~100 records
                      + trending week                 ↓ dedupe by id
-                                                   81 unique films
+                                                  ~80 unique films
 
 Phase 2 — depth       81 × GET /movie/{id}        → budget, revenue,
                       issued in parallel             runtime, countries
 
-Measured coverage:    55 / 81 films carry both budget and revenue  (68%)
+Measured coverage:    ~68% of films carry both budget and revenue
                       year range 1954 – 2026
                       21 distinct production countries
+
+(The lists are live, so the exact count shifts between runs. The page
+ reports its own coverage rather than assuming a fixed number.)
 ```
 
 The result is cached as a **promise at module scope**, so all four charts share one network pass no matter which renders first:
@@ -330,7 +329,7 @@ Caching the promise rather than the resolved value is what prevents four simulta
 
 With the filters applied, the box-office axis runs `$200,000 → $2.00B` instead of `$100 → $2B`. TMDB's financial fields are crowd-maintained, so defensive filtering is mandatory rather than optional.
 
-### `services/sound.js` — Web Audio synthesis · 337 lines
+### `services/sound.js` — Web Audio synthesis · 238 lines
 
 **There is not one audio file in this repository.** Every sound is built from oscillators, biquad filters and generated noise buffers at runtime.
 
@@ -369,7 +368,7 @@ OscillatorNode ──▶ BiquadFilterNode ──▶ GainNode ──▶ destinati
 
 **`startHeartbeat()` returns its own teardown.** The heartbeat during the final attempts is an interval, not a one-shot, so the function returns the stop handle rather than exposing a separate `stopHeartbeat()`. Impossible to leak by forgetting the pair.
 
-### `services/frameGame.js` — game rules & persistence · 239 lines
+### `services/frameGame.js` — game rules & persistence · 186 lines
 
 ```text
 frameGame.js
@@ -799,7 +798,7 @@ Genre share per decade, pivoted by `genreByDecade()`. Reading it: a band that wi
 | `format.js` | The `money()` formatter. It lives in its own file because exporting a non-component alongside a component breaks React Fast Refresh and trips `react-refresh/only-export-components` |
 | `CountUp.jsx` | Headline figures roll up from zero on first paint |
 
-**Honest data reporting.** The masthead carries an explicit coverage note — **55 of 81 films (68%) have both budget and revenue** — rather than quietly charting the 68% and implying it is the whole set. A visualisation that hides its own coverage is misleading even when every plotted point is correct.
+**Honest data reporting.** The masthead carries a coverage note computed at runtime — typically **around 68% of the films carry both budget and revenue** — rather than quietly charting that 68% and implying it is the whole set. A visualisation that hides its own coverage is misleading even when every plotted point is correct.
 
 ---
 
@@ -824,7 +823,7 @@ Genre share per decade, pivoted by `genreByDecade()`. Reading it: a band that wi
 
 Loaded once in `index.html` with `preconnect` to `fonts.gstatic.com`, and declared as a Tailwind theme token so `font-display` works as a utility class.
 
-### `index.css` — the animation layer · 610 lines
+### `index.css` — the animation layer · 446 lines
 
 Every keyframe in the project lives in this one file:
 
