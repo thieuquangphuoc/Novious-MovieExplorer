@@ -13,13 +13,27 @@
   <img src="https://img.shields.io/badge/Recharts-FF7300?style=for-the-badge&logoColor=white" alt="Recharts">
 </p>
 
+<p align="center">
+  <a href="https://thieuquangphuoc.github.io/Novious-MovieExplorer/">
+    <img src="https://img.shields.io/badge/%E2%96%B6%20LIVE%20DEMO-Open%20the%20app-E50914?style=for-the-badge&labelColor=141414" alt="Live demo" height="38">
+  </a>
+</p>
+
+<p align="center">
+  <b><a href="https://thieuquangphuoc.github.io/Novious-MovieExplorer/">thieuquangphuoc.github.io/Novious-MovieExplorer</a></b>
+</p>
+
 ---
 
 <p align="center">
-  <img src="./assets/preview.gif" alt="Novious MovieExplorer demo" width="900">
+  <a href="https://thieuquangphuoc.github.io/Novious-MovieExplorer/">
+    <img src="./assets/preview.gif" alt="Novious MovieExplorer demo" width="900">
+  </a>
 </p>
 
 <p align="center"><i>Home carousel → Movie Machine → Frame by Frame → Cinema Decoded</i></p>
+
+<p align="center"><sub>The image above is a recording. Click it to open the real thing.</sub></p>
 
 ---
 
