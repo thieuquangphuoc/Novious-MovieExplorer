@@ -16,7 +16,7 @@
 ---
 
 <p align="center">
-  <img src="./assets/preview-novious.gif" alt="Novious MovieExplorer demo" width="900">
+  <img src="./assets/preview.gif" alt="Novious MovieExplorer demo" width="900">
 </p>
 
 <p align="center"><i>Home carousel → Movie Machine → Frame by Frame → Cinema Decoded</i></p>
