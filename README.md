@@ -6,22 +6,11 @@
 > Every poster, rating, budget figure and sound in this project is either fetched live from TMDB or synthesised in the browser at runtime.
 
 <p align="center">
-  <img src="https://img.shields.io/badge/React-19.3-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB" alt="React 19">
-  <img src="https://img.shields.io/badge/Vite-8.3-%23646CFF.svg?style=for-the-badge&logo=vite&logoColor=white" alt="Vite 8">
-  <img src="https://img.shields.io/badge/Tailwind_CSS-4.3-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS 4">
-  <img src="https://img.shields.io/badge/JavaScript-ES2023-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E" alt="JavaScript">
-</p>
-<p align="center">
-  <img src="https://img.shields.io/badge/React_Router-7.18-CA4245?style=for-the-badge&logo=reactrouter&logoColor=white" alt="React Router 7">
-  <img src="https://img.shields.io/badge/Recharts-3.10-FF6384?style=for-the-badge&logo=chartdotjs&logoColor=white" alt="Recharts">
-  <img src="https://img.shields.io/badge/TMDB_API-v3-01B4E4?style=for-the-badge&logo=themoviedatabase&logoColor=white" alt="TMDB API v3">
-  <img src="https://img.shields.io/badge/Web_Audio_API-Synthesised-F7931E?style=for-the-badge&logo=webassembly&logoColor=white" alt="Web Audio API">
-</p>
-<p align="center">
-  <img src="https://img.shields.io/badge/ESLint_10-0_errors-4B3263?style=for-the-badge&logo=eslint&logoColor=white" alt="ESLint clean">
-  <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" alt="HTML5">
-  <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white" alt="CSS3">
-  <img src="https://img.shields.io/badge/GitHub_Pages-121013?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Pages">
+  <img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React">
+  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript">
+  <img src="https://img.shields.io/badge/Tailwind%20CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS">
+  <img src="https://img.shields.io/badge/React%20Router-CA4245?style=for-the-badge&logo=reactrouter&logoColor=white" alt="React Router">
+  <img src="https://img.shields.io/badge/Recharts-FF7300?style=for-the-badge&logoColor=white" alt="Recharts">
 </p>
 
 ---
